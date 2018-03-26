@@ -10,27 +10,30 @@ mlmm(formula_completed, formula_missing, formula_subject, pdata,
   adapt_delta_value = 0.85, savefile = FALSE, usefit = FALSE)
 }
 \arguments{
-\item{formula_completed}{The main regression model formula. It has the same formula format
-as lmr() and it is used to define the first level response and its explanatory variables.}
+\item{formula_completed}{The main regression model formula. 
+It has the same formula format as lmr() and it is used to 
+define the first level response and its explanatory variables.}
 
-\item{formula_missing}{The logistic regression model formula. It has the same formula as
-formula_completed.}
+\item{formula_missing}{The logistic regression model formula. 
+It has the same formula as formula_completed.}
 
-\item{formula_subject}{The second level formula in the multilevel model which is used to define
-responses such as subject and its explanatory variables.}
+\item{formula_subject}{The second level formula in the multilevel model 
+which is used to define second level unit such as subject and explanatory variables.}
 
-\item{pdata}{The dataset contains response and predictors in a long format. Response is a
-vector with an indictor variable to define the corresponding unit. The data needs to have the
-following rudimental variables:  the indicator variable for first level response, second level
-indicator variable for subject, or a sampling unit, an indicator for missingness and indictor of
-censoring.  Missingness and censor are two different classification, there should not have any
-overlap between missingness and censored. Data structure can be referenced from the example
-and reference papers.}
+\item{pdata}{The dataset contains response and predictors in a long format. 
+Response is a vector with an indictor variable to define the corresponding unit. 
+The data needs to have the following rudimental variables:
+the indicator variable for first level response, 
+the indicator variable for second level unit such as subject or a sampling unit, 
+an indicator for missingness and indictor of censoring.  
+Missingness and censor are two different classification, there should not have any
+overlap between missingness and censored. 
+Data structure can be referenced from the example and reference papers.}
 
 \item{respond_dep_missing}{An indicator of whether response value is missing-dependant.}
 
-\item{pidname}{Variable name to define the multilevel response unit , i.e. protein name or gene
-name}
+\item{pidname}{Variable name to define the multilevel response unit, 
+i.e. protein name or gene name}
 
 \item{sidname}{Vriable name to define the subject unit, i.e. patient id or sampling id}
 
@@ -55,14 +58,11 @@ algorithms,default is 0.85, value between 0-1.}
 }
 \value{
 Return of the function is the result fitted by stan(). It will have the summarized
-       parameters from all chains and summary results for each chain.Plot() function will return the
-       visualization of the mean and parameters.
+parameters from all chains and summary results for each chain.Plot() function will return the
+visualization of the mean and parameters.
 }
 \description{
-mlmm function handles Bayesian multilevel model with responses that is not-
-       missing-at-random. 
-       It is motivated from analysing mass spectrometry data with respondent dependant non-missing-
-       at-random missingness, and when there are known covariates associating with the missingness.
+mlmm function handles Bayesian multilevel model with responses
 }
 \examples{
 #\dontrun{

@@ -11,35 +11,40 @@ mlmc(formula_completed, formula_missing, formula_censor = NULL,
   adapt_delta_value = 0.85, savefile = FALSE, usefit = FALSE)
 }
 \arguments{
-\item{formula_completed}{The main regression model formula; It has the same 
+\item{formula_completed}{The main regression model formula; It has the same
 formula format as lmr() and it is used to define the first level response 
 and its explanatory variables.}
 
-\item{formula_missing}{The logistic regression model formula; It has the same formula
-as formula_completed.}
+\item{formula_missing}{The logistic regression model formula; 
+It has the same formula as formula_completed.}
 
-\item{formula_censor}{The formula used in the program to define the observations with
-censored values.}
+\item{formula_censor}{The formula used in the program to define the 
+observations with censored values.}
 
-\item{formula_subject}{The second level formula in the multilevel model which is used to define
-responses such as subject and its explanatory variables.}
+\item{formula_subject}{The second level formula in the multilevel model 
+which is used to define responses such as subject and 
+its explanatory variables.}
 
-\item{pdata}{The dataset contains response and predictors in a long format. Response is a vector 
-with an indictor variable to define the corresponding unit. The data needs to have the following 
-rudimental variables: the indicator variable for first level response, second level indicator
-variable for subject, or a sampling unit, an indicator for missingness and indictor of censoring.
-Missingness and censor are two different classifications, there should not have any overlap
-between missingness and censored.  Data structure can be referenced from the example and
-reference papers.}
+\item{pdata}{The dataset contains response and predictors in a long format. 
+Response is a vector with an indictor variable to define the corresponding unit. 
+The data needs to have the following rudimental variables: 
+the indicator variable for first level response, 
+second level indicator variable for subject 
+such as subject id or a sampling unit, 
+an indicator for missingness and indictor of censoring.
+Missingness and censor are two different classifications, 
+when these two variables are tabulated, there must not have any observation 
+defined as censored and missing.   
+Data structure can be referred from the example and vignette.}
 
-\item{respond_dep_missing}{A logical variable to indicate whether response value is missing-
-dependant.}
+\item{respond_dep_missing}{A logical variable to indicate whether 
+response value is missing-dependant.}
 
-\item{response_censorlim}{The detectable limit for the response value, i.e. 1 mg per Liter for
-intensity value.}
+\item{response_censorlim}{The detectable limit for the response value, 
+i.e. 1 mg per Liter for intensity value.}
 
-\item{pidname}{Variable name to define the multilevel response unit , i.e. protein name or gene
-name.}
+\item{pidname}{Variable name to define the multilevel response unit, 
+i.e. protein name or gene name.}
 
 \item{sidname}{Variable name to define the subject unit, i.e. patient id or sampling id.}
 
@@ -56,16 +61,16 @@ name.}
 \item{warmup}{Number of iterations for burn-out in stan.}
 
 \item{adapt_delta_value}{Adaptive delta value is an adaptation parameters for sampling
-algorithms,default is 0.85, value between 0-1.}
+algorithms, default is 0.85, value between 0-1.}
 
 \item{savefile}{A logical variable to indicate if the sampling files are to be saved.}
 
 \item{usefit}{A logical variable to indicate if the model use the existing fit.}
 }
 \value{
-Return of the function is the result fitted by stan. It will have the summarized parameters
-   from all chains and summary results for each chain. Plot function will return the visualization of
-   the mean and parameters.
+Return of the function is the result fitted by stan. It will have the summarized 
+parameters from all chains and summary results for each chain. Plot function 
+will return the visualization of the mean and parameters.
 }
 \description{
 mlmc() handles Bayesian multilevel model with responses that is 
@@ -91,10 +96,12 @@ testfun=function()
  for ( i in seq_len(50)) {if (miss[i]==1) var1[i]=NA;
  if (censor[i]==1) var1[i]=0.05}
  pdata=data.frame(var1,var2,miss,censor,geneid,sid)
- model1=mlmc(formula_completed=var1~var2,formula_missing=miss~var2,
-             formula_censor=censor~1,formula_subject=~var2,pdata=pdata,response_censorlim=0.05,
-             respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
-             iterno=10,chains=2,savefile=FALSE,usefit=TRUE)
+ model1=mlmc(
+           formula_completed=var1~var2,formula_missing=miss~var2,
+           formula_censor=censor~1,formula_subject=~var2,
+           pdata=pdata,response_censorlim=0.05,
+           respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
+           iterno=10,chains=2,savefile=FALSE,usefit=TRUE)
  }
 system.time(testfun())
 }
@@ -113,7 +120,8 @@ miss=rbinom(800,1,exp(miss_logit)/(exp(miss_logit)+1));
 censor=rep(0,800)
 for (i in seq_len(800)) {if (var1[i]<0.002) censor[i]=1}
 pdata=data.frame(var1,var2,treatment,miss,censor,geneid,sid);
-for ( i in seq_len(800)) {if ((pdata$miss[i]==1) & (pdata$censor[i]==1)) pdata$miss[i]=0};
+for ( i in seq_len(800)) 
+{if ((pdata$miss[i]==1) & (pdata$censor[i]==1)) pdata$miss[i]=0};
 for ( i in seq_len(800)) {if (pdata$miss[i]==1) pdata$var1[i]=NA;
                    if (pdata$censor[i]==1) pdata$var1[i]=0.002};
 pidname="geneid";sidname="sid";
@@ -124,8 +132,9 @@ formula_censor=censor~1;
 formula_subject=~treatment;
 response_censorlim=0.002;
 model1=mlmc(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_censor=censor~1,formula_subject=~treatment,pdata=pdata,response_censorlim=0.002,
-respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
-iterno=50,chains=2,savefile=FALSE,usefit=FALSE)
+   formula_censor=censor~1,formula_subject=~treatment,pdata=pdata,
+   response_censorlim=0.002,
+   respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
+   iterno=50,chains=2,savefile=FALSE,usefit=FALSE)
 }
 }
