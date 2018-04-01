@@ -1,10 +1,15 @@
-#'mlmc for missing and censored response in multilevel model.
+#'mlmc() function.
 #'@useDynLib rstanarm, .registration = TRUE
-#'@description mlmc() handles Bayesian multilevel model with responses that is 
-#'left-censored and not-missing-at-random. It is motivated from analysing 
-#'mass-spectrometry data that has missing values non-missing-at-random, and 
-#'there are known covariates associating with the missingness. 
-#'It also imputes values under a known detectable limit in the response values.
+#'@description mlmc() handles Bayesian multilevel model with response variable
+#'that has left-censored values, and missing values that depends on the 
+#'response value itself. Apart from the response value, the missingness is 
+#'also known to associate with the other variables.  The method is created for
+#'analysing mass-spectrometry data when it has abundance-dependant missing and
+#'censored values, and there are prior information available for the 
+#'associations between the probability of missing and the known variables. 
+#'The imputed values for the censored response are outputed as part of the 
+#'parameters. 
+#'
 #'@import methods MASS Matrix Rcpp stats4 ggplot2 
 #'
 #'@param formula_completed The main regression model formula; It has the same
@@ -22,8 +27,8 @@
 #'its explanatory variables.
 #'
 #'@param pdata The dataset contains response and predictors in a long format. 
-#'Response is a vector with an indictor variable to define the corresponding unit. 
-#'The data needs to have the following rudimental variables: 
+#'Response is a vector with an indictor variable to define the corresponding 
+#'unit. The data needs to have the following rudimental variables: 
 #'the indicator variable for first level response, 
 #'second level indicator variable for subject 
 #'such as subject id or a sampling unit, 
@@ -42,49 +47,66 @@
 #'@param pidname Variable name to define the multilevel response unit, 
 #'i.e. protein name or gene name.
 #'
-#'@param sidname Variable name to define the subject unit, i.e. patient id or sampling id.
+#'@param sidname Variable name to define the subject unit, 
+#'i.e. patient id or sampling id.
+#'
+#'@param prec_prior prior precision matrix of the explanatory variables 
+#'at the first level unit in the multilevel model, for example, the variables 
+#'to predict ion intensity. Its dimension will be q x q, where q is the number
+#'of explanatory variables at the right-hand side of formula_completed.The 
+#'default is a matrix with diagonal values of 0.01 and off-diagonal values of 
+#'0.005.    
+#'
+#'@param alpha_prior prior for coefficients of predictors to missing 
+#'probability in the logistic regression. Its length will be equal to the 
+#'number of variables at the right-hand side of the formula_missing. 
+#'Default is a vector of zeros.  
 #'
 #'@param iterno Number of iterations for the posterior samplings.
 #'
-#'@param chains rstan parameter to define number of chains of posterior samplings.
+#'@param chains rstan parameter to define number of chains of posterior 
+#'samplings.
 #'
 #'@param thin rstan parameter to define the frequency of iterations saved.
 #'
 #'@param seed random seed for rstan function.
 #'
-#'@param algorithm rstan parameter which has three options NUTS, HMC, Fixed param.
+#'@param algorithm rstan parameter which has three options NUTS, HMC, 
+#'Fixed param.
 #'
 #'@param warmup Number of iterations for burn-out in stan.
 #'
-#'@param adapt_delta_value  Adaptive delta value is an adaptation parameters for sampling
-#'algorithms, default is 0.85, value between 0-1.
+#'@param adapt_delta_value  Adaptive delta value is an adaptation parameters 
+#'for sampling algorithms, default is 0.85, value between 0-1.
 #'
-#'@param savefile A logical variable to indicate if the sampling files are to be saved.
+#'@param savefile A logical variable to indicate if the sampling files are to
+#'be saved.
 #'
-#'@param usefit A logical variable to indicate if the model use the existing fit.
+#'@param usefit A logical variable to indicate if the model use the existing 
+#'fit.
 #'
-#'@return Return of the function is the result fitted by stan. It will have the summarized 
-#'parameters from all chains and summary results for each chain. Plot function 
-#'will return the visualization of the mean and parameters.
+#'@return Return of the function is the result fitted by stan. It will have 
+#'the summarized parameters from all chains and summary results for each chain. 
+#'
 #'
 #' @examples
 #' \dontshow{
 #' testfun=function()
 #' {set.seed(100)
-#'  var2=abs(rnorm(50,0,1))
-#'  var1=(1/0.85)*var2;
-#'  geneid=rep(c(1:10),5);sid=c(rep(c(1:25),2),rep(c(26:50),2));
-#'  censor=rep(0,50)
-#'  pidname="geneid";sidname="sid";
-#'  miss_logit=var2*(-0.9);
-#'  miss=rbinom(50,1,exp(miss_logit)/(exp(miss_logit)+1));
-#'  censor=rep(0,50)
-#'  for (i in seq_len(50)) {if (var1[i]<0.05) censor[i]=1}
-#'  for ( i in seq_len(50)) {if ((miss[i]==1) & (censor[i]==1)) miss[i]=0};
-#'  for ( i in seq_len(50)) {if (miss[i]==1) var1[i]=NA;
-#'  if (censor[i]==1) var1[i]=0.05}
-#'  pdata=data.frame(var1,var2,miss,censor,geneid,sid)
-#'  model1=mlmc(
+#'    var2=abs(rnorm(50,0,1))
+#'    var1=(1/0.85)*var2;
+#'    geneid=rep(c(1:10),5);sid=c(rep(c(1:25),2),rep(c(26:50),2));
+#'    censor=rep(0,50)
+#'    pidname="geneid";sidname="sid";
+#'    miss_logit=var2*(-0.9);
+#'    miss=rbinom(50,1,exp(miss_logit)/(exp(miss_logit)+1));
+#'    censor=rep(0,50)
+#'    for (i in seq_len(50)) {if (var1[i]<0.05) censor[i]=1}
+#'    for ( i in seq_len(50)) {if ((miss[i]==1) & (censor[i]==1)) miss[i]=0};
+#'    for ( i in seq_len(50)) {if (miss[i]==1) var1[i]=NA;
+#'    if (censor[i]==1) var1[i]=0.05}
+#'    pdata=data.frame(var1,var2,miss,censor,geneid,sid)
+#'    model1=mlmc(
 #'            formula_completed=var1~var2,formula_missing=miss~var2,
 #'            formula_censor=censor~1,formula_subject=~var2,
 #'            pdata=pdata,response_censorlim=0.05,
@@ -130,6 +152,7 @@
 mlmc=function(
 formula_completed,formula_missing,formula_censor=NULL,formula_subject,
     pdata,respond_dep_missing=TRUE,response_censorlim=NULL,pidname,sidname,
+    prec_prior=NULL,alpha_prior=NULL,
     iterno=100,chains=3,thin=1,seed=125,
     algorithm="NUTS",warmup=floor(iterno/2),adapt_delta_value=0.85,
     savefile=FALSE,usefit=FALSE
@@ -137,23 +160,28 @@ formula_completed,formula_missing,formula_censor=NULL,formula_subject,
 {
     current.na.action=options('na.action')
     options(na.action='na.pass')
+    
     t=stats::terms(formula_completed)
     mf=stats::model.frame(t,pdata,na.action='na.pass')
     mm=stats::model.matrix(mf,pdata)
+    
     t2=stats::terms(formula_missing)
     mf2=stats::model.frame(t2,pdata,na.action='na.pass')
     mm2=stats::model.matrix(mf2,pdata)
     missing=stats::model.response(mf2)
+    
     if (!is.null(formula_subject))
     {tt3=stats::terms(formula_subject);
     mf3=stats::model.frame(tt3,pdata,na.action='na.pass');
-    mm3=stats::model.matrix(mf3,pdata)} else stop("No subject formula defined");
+    mm3=stats::model.matrix(mf3,pdata)} else {
+    stop("No subject formula defined")}
     if (!is.null(formula_censor)){
     tt4=stats::terms(formula_censor);
     mf4=stats::model.frame(tt4,pdata,na.action='na.pass');
     mm4=stats::model.matrix(mf4,pdata);
     censor=stats::model.response(mf4)
     } else ncensor=0;
+    
     if (!is.null(response_censorlim))
     censor_lim=response_censorlim else {
     stop("No response censor limit defined")
@@ -162,7 +190,8 @@ formula_completed,formula_missing,formula_censor=NULL,formula_subject,
     options('na.action' = current.na.action$na.action)
     #unit test detect errors for censor and missing
     checkt=table(missing,censor)
-    if (checkt[4]>0) stop("responses have overlapped definition in censor and missing");
+    if (checkt[4]>0) 
+    stop("responses have overlapped definition in censor and missing");
     #######################Prepare data
     ns=length(y_all)
     if (!is.null(formula_censor)) ncensor=table(censor)[2]
@@ -199,13 +228,20 @@ formula_completed,formula_missing,formula_censor=NULL,formula_subject,
     if (respond_dep_missing) respond_dep=1 else respond_dep=0
     #data for prior
     R=as.matrix(Matrix::Diagonal(npred))
-    prec=matrix(nrow=npred,ncol=npred)
+    #Assign default prior for precision matrix 
+    #of explnatory variables at the first leve
+    if (is.null(prec_prior)){
+    prec_prior=matrix(nrow=npred,ncol=npred)
     for ( i in seq_len(npred))
     for (j in seq_len(npred))
-    {if (i==j) prec[i,j]=0.1 else prec[i,j]=0.005}
+    {if (i==j) prec_prior[i,j]=0.1 else prec_prior[i,j]=0.005}
+    }
     mn=rep(0,npred)
     Sigma_sd=as.vector(rep(10,npred))
-
+    #Assign default prior value for assoication between missing prob 
+    #& variables
+    if (is.null(alpha_prior)) alpha_prior=rep(0,npred_miss)
+    
     if ((!is.null(formula_censor)))
     {prstan_data=list(
     nobs=nobs, nmiss=nmiss, ncensor=ncensor, nsid=nsid, np=np,
@@ -217,19 +253,21 @@ formula_completed,formula_missing,formula_censor=NULL,formula_subject,
     pred_miss_m=pred_miss_m, pred_sub_m=pred_sub_m, 
     miss_m=miss_m, sid_c=sid_c, pid_c=pid_c, pred_c=pred_c, 
     pred_sub_c=pred_sub_c, npred_c=npred_c, 
-    R=R,Sigma_sd=Sigma_sd, prec=prec,mn=mn)
+    R=R,Sigma_sd=Sigma_sd, mn=mn,
+    prec_prior=prec_prior,alpha_prior=alpha_prior)
     } else {
     prstan_data=list(
     nobs=nobs, nmiss=nmiss, ncensor=ncensor, nsid=nsid, np=np,
     npred=npred, npred_miss=npred_miss, npred_sub=npred_sub, 
     censor_lim=censor_lim, respond_dep=respond_dep, 
     y=y_all[(missing!=1 & censor!=1),], sid=sid, pid=pid,
-    pred=pred, pred_miss=pred_miss, pred_sub=pred_sub, miss_obs=miss_obs, sid_m=sid_m, 
-    pid_m=pid_m, pred_m=pred_m, 
+    pred=pred, pred_miss=pred_miss, pred_sub=pred_sub, miss_obs=miss_obs, 
+    sid_m=sid_m, pid_m=pid_m, pred_m=pred_m, 
     pred_miss_m=pred_miss_m, pred_sub_m=pred_sub_m, miss_m=miss_m,
     sid_c=0, pid_c=0,
     pred_c=matrix(nrow=1,ncol=1), pred_sub_c=matrix(nrow=1,ncol=1), npred_c=0,
-    R=R,Sigma_sd=Sigma_sd,prec=prec,mn=mn)
+    R=R,Sigma_sd=Sigma_sd,mn=mn,
+    prec_prior=prec_prior,alpha_prior=alpha_prior)
     }
 
     if (respond_dep==1) parsstr=c("U","beta2","alpha","alpha_response") else {
@@ -243,32 +281,41 @@ formula_completed,formula_missing,formula_censor=NULL,formula_subject,
     if (usefit==TRUE) { 
         stanfit=stanmodels$mlmc_code
         if (savefile==TRUE)  
-        fitmlmc=rstan::sampling(stanfit,data=prstan_data,iter=iterno,init=initvalue1,
+        fitmlmc=rstan::sampling(stanfit,data=prstan_data,iter=iterno,
+        init=initvalue1,
         pars=parsstr,seed=seed,thin=thin,
         algorithm=algorithm,warmup=warmup,chains=chains,
         control=list(adapt_delta=adapt_delta_value),
         sample_file=file.path(getwd(),"samples")) else {
-        fitmlmc=rstan::sampling(stanfit,data=prstan_data,iter=iterno,init=initvalue1,
+        fitmlmc=rstan::sampling(stanfit,data=prstan_data,iter=iterno,
+        init=initvalue1,
         pars=parsstr, seed=seed, thin=thin,
         algorithm=algorithm,warmup=warmup,chains=chains,
         control=list(adapt_delta=adapt_delta_value),sample_file=NULL)
         }
         }  else {  
         if (savefile==TRUE) 
-        fitmlmc=rstan::stan(file=file.path(mlmm_path,"mlmm/exec/mlmc_code.stan"),data=prstan_data,
-        iter=iterno,init=initvalue1,pars=parsstr,
+        fitmlmc=rstan::stan(file=file.path(mlmm_path,
+        "mlmm/exec/mlmc_code.stan"),
+        data=prstan_data, iter=iterno,init=initvalue1,pars=parsstr,
         seed=seed,thin=thin,algorithm=algorithm,warmup=warmup,chains=chains,
         control=list(adapt_delta=adapt_delta_value),
-        sample_file=file.path(getwd(),"samples"),save_dso=TRUE) else 
-        {fitmlmc=rstan::stan(file=file.path(mlmm_path,"mlmm/exec/mlmc_code.stan"),data=prstan_data,
+        sample_file=file.path(getwd(),"samples"),save_dso=FALSE) else 
+        {
+        stanfit=stanmodels$mlmc_code
+        fitmlmc=rstan::stan(file=file.path(mlmm_path,
+        "mlmm/exec/mlmc_code.stan"),
+        data=prstan_data,
         iter=iterno, init=initvalue1,pars=parsstr, seed=seed, thin=thin,
         algorithm=algorithm,warmup=warmup,chains=chains,
-        control=list(adapt_delta=adapt_delta_value),sample_file=NULL,save_dso=TRUE)}
+        control=list(adapt_delta=adapt_delta_value),sample_file=NULL,
+        save_dso=FALSE)}
         }
 
-    print(fitmlmc); plot(fitmlmc)
+    print(fitmlmc); 
     if (savefile==TRUE) 
-    utils::write.csv(as.array(fitmlmc),file=file.path(getwd(),"outsummary.csv"),row.names=TRUE)
+    utils::write.csv(as.array(fitmlmc),file=file.path(getwd(),"outsummary.csv"),
+    row.names=TRUE)
     return(fitmlmc)
 }
 
