@@ -2,13 +2,14 @@
 % Please edit documentation in R/mlmc.R
 \name{mlmc}
 \alias{mlmc}
-\title{mlmc for missing and censored response in multilevel model.}
+\title{mlmc() function.}
 \usage{
 mlmc(formula_completed, formula_missing, formula_censor = NULL,
   formula_subject, pdata, respond_dep_missing = TRUE,
-  response_censorlim = NULL, pidname, sidname, iterno = 100, chains = 3,
-  thin = 1, seed = 125, algorithm = "NUTS", warmup = floor(iterno/2),
-  adapt_delta_value = 0.85, savefile = FALSE, usefit = FALSE)
+  response_censorlim = NULL, pidname, sidname, prec_prior = NULL,
+  alpha_prior = NULL, iterno = 100, chains = 3, thin = 1, seed = 125,
+  algorithm = "NUTS", warmup = floor(iterno/2), adapt_delta_value = 0.85,
+  savefile = FALSE, usefit = FALSE)
 }
 \arguments{
 \item{formula_completed}{The main regression model formula; It has the same
@@ -46,7 +47,20 @@ i.e. 1 mg per Liter for intensity value.}
 \item{pidname}{Variable name to define the multilevel response unit, 
 i.e. protein name or gene name.}
 
-\item{sidname}{Variable name to define the subject unit, i.e. patient id or sampling id.}
+\item{sidname}{Variable name to define the subject unit, 
+i.e. patient id or sampling id.}
+
+\item{prec_prior}{prior precision matrix of the explanatory variables 
+at the first level unit in the multilevel model, for example, the variables 
+to predict ion intensity. Its dimension will be q x q, where q is the number
+of explanatory variables at the right-hand side of formula_completed.The 
+default is a matrix with diagonal values of 0.01 and off-diagonal values of 
+0.005.}
+
+\item{alpha_prior}{prior for coefficients of predictors to missing probability
+in the logistic regression. Its length will be equal to the number of 
+variables at the right-hand side of the formula_missing. Default is a vector of
+zeros.}
 
 \item{iterno}{Number of iterations for the posterior samplings.}
 
@@ -56,47 +70,51 @@ i.e. protein name or gene name.}
 
 \item{seed}{random seed for rstan function.}
 
-\item{algorithm}{rstan parameter which has three options NUTS, HMC, Fixed param.}
+\item{algorithm}{rstan parameter which has three options NUTS, HMC, 
+Fixed param.}
 
 \item{warmup}{Number of iterations for burn-out in stan.}
 
-\item{adapt_delta_value}{Adaptive delta value is an adaptation parameters for sampling
-algorithms, default is 0.85, value between 0-1.}
+\item{adapt_delta_value}{Adaptive delta value is an adaptation parameters 
+for sampling algorithms, default is 0.85, value between 0-1.}
 
-\item{savefile}{A logical variable to indicate if the sampling files are to be saved.}
+\item{savefile}{A logical variable to indicate if the sampling files are to be
+saved.}
 
 \item{usefit}{A logical variable to indicate if the model use the existing fit.}
 }
 \value{
-Return of the function is the result fitted by stan. It will have the summarized 
-parameters from all chains and summary results for each chain. Plot function 
-will return the visualization of the mean and parameters.
+Return of the function is the result fitted by stan. It will have the 
+summarized parameters from all chains and summary results for each chain.
 }
 \description{
-mlmc() handles Bayesian multilevel model with responses that is 
-left-censored and not-missing-at-random. It is motivated from analysing 
-mass-spectrometry data that has missing values non-missing-at-random, and 
-there are known covariates associating with the missingness. 
-It also imputes values under a known detectable limit in the response values.
+mlmc() handles Bayesian multilevel model with response variable
+that has left-censored values, and missing values that depends on the response
+value itself. Apart from the response value, the missingness is also known to 
+associate with the other variables.  The method is created for analysing 
+mass-spectrometry data when it has abundance-dependant missing and censored
+values, and there are prior information available for the associations between 
+the probability of missing and the known variables. The imputed values for the 
+censored response are outputed as part of the parameters.
 }
 \examples{
 \dontshow{
 testfun=function()
 {set.seed(100)
- var2=abs(rnorm(50,0,1))
- var1=(1/0.85)*var2;
- geneid=rep(c(1:10),5);sid=c(rep(c(1:25),2),rep(c(26:50),2));
- censor=rep(0,50)
- pidname="geneid";sidname="sid";
- miss_logit=var2*(-0.9);
- miss=rbinom(50,1,exp(miss_logit)/(exp(miss_logit)+1));
- censor=rep(0,50)
- for (i in seq_len(50)) {if (var1[i]<0.05) censor[i]=1}
- for ( i in seq_len(50)) {if ((miss[i]==1) & (censor[i]==1)) miss[i]=0};
- for ( i in seq_len(50)) {if (miss[i]==1) var1[i]=NA;
- if (censor[i]==1) var1[i]=0.05}
- pdata=data.frame(var1,var2,miss,censor,geneid,sid)
- model1=mlmc(
+   var2=abs(rnorm(50,0,1))
+   var1=(1/0.85)*var2;
+   geneid=rep(c(1:10),5);sid=c(rep(c(1:25),2),rep(c(26:50),2));
+   censor=rep(0,50)
+   pidname="geneid";sidname="sid";
+   miss_logit=var2*(-0.9);
+   miss=rbinom(50,1,exp(miss_logit)/(exp(miss_logit)+1));
+   censor=rep(0,50)
+   for (i in seq_len(50)) {if (var1[i]<0.05) censor[i]=1}
+   for ( i in seq_len(50)) {if ((miss[i]==1) & (censor[i]==1)) miss[i]=0};
+   for ( i in seq_len(50)) {if (miss[i]==1) var1[i]=NA;
+   if (censor[i]==1) var1[i]=0.05}
+   pdata=data.frame(var1,var2,miss,censor,geneid,sid)
+   model1=mlmc(
            formula_completed=var1~var2,formula_missing=miss~var2,
            formula_censor=censor~1,formula_subject=~var2,
            pdata=pdata,response_censorlim=0.05,
