@@ -27,7 +27,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_mlmc_code");
-    reader.add_event(135, 135, "end", "model_mlmc_code");
+    reader.add_event(138, 138, "end", "model_mlmc_code");
     return reader;
 }
 
@@ -57,8 +57,9 @@ private:
     vector<int> miss_obs;
     matrix_d R;
     vector_d Sigma_sd;
-    matrix_d prec;
+    matrix_d prec_prior;
     vector_d mn;
+    vector_d alpha_prior;
     double censor_lim;
     vector<int> sid_c;
     vector<int> pid_c;
@@ -354,18 +355,18 @@ public:
                 Sigma_sd[i_vec__] = vals_r__[pos__++];
             }
             current_statement_begin__ = 30;
-            validate_non_negative_index("prec", "npred", npred);
-            validate_non_negative_index("prec", "npred", npred);
-            context__.validate_dims("data initialization", "prec", "matrix_d", context__.to_vec(npred,npred));
-            validate_non_negative_index("prec", "npred", npred);
-            validate_non_negative_index("prec", "npred", npred);
-            prec = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
-            vals_r__ = context__.vals_r("prec");
+            validate_non_negative_index("prec_prior", "npred", npred);
+            validate_non_negative_index("prec_prior", "npred", npred);
+            context__.validate_dims("data initialization", "prec_prior", "matrix_d", context__.to_vec(npred,npred));
+            validate_non_negative_index("prec_prior", "npred", npred);
+            validate_non_negative_index("prec_prior", "npred", npred);
+            prec_prior = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
+            vals_r__ = context__.vals_r("prec_prior");
             pos__ = 0;
-            size_t prec_k_mat_lim__ = npred;
-            for (size_t n_mat__ = 0; n_mat__ < prec_k_mat_lim__; ++n_mat__) {
-                for (size_t m_mat__ = 0; m_mat__ < prec_k_mat_lim__; ++m_mat__) {
-                    prec(m_mat__,n_mat__) = vals_r__[pos__++];
+            size_t prec_prior_k_mat_lim__ = npred;
+            for (size_t n_mat__ = 0; n_mat__ < prec_prior_k_mat_lim__; ++n_mat__) {
+                for (size_t m_mat__ = 0; m_mat__ < prec_prior_k_mat_lim__; ++m_mat__) {
+                    prec_prior(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
             current_statement_begin__ = 31;
@@ -379,13 +380,24 @@ public:
             for (size_t i_vec__ = 0; i_vec__ < mn_i_vec_lim__; ++i_vec__) {
                 mn[i_vec__] = vals_r__[pos__++];
             }
-            current_statement_begin__ = 34;
+            current_statement_begin__ = 32;
+            validate_non_negative_index("alpha_prior", "npred_miss", npred_miss);
+            context__.validate_dims("data initialization", "alpha_prior", "vector_d", context__.to_vec(npred_miss));
+            validate_non_negative_index("alpha_prior", "npred_miss", npred_miss);
+            alpha_prior = vector_d(static_cast<Eigen::VectorXd::Index>(npred_miss));
+            vals_r__ = context__.vals_r("alpha_prior");
+            pos__ = 0;
+            size_t alpha_prior_i_vec_lim__ = npred_miss;
+            for (size_t i_vec__ = 0; i_vec__ < alpha_prior_i_vec_lim__; ++i_vec__) {
+                alpha_prior[i_vec__] = vals_r__[pos__++];
+            }
+            current_statement_begin__ = 35;
             context__.validate_dims("data initialization", "censor_lim", "double", context__.to_vec());
             censor_lim = double(0);
             vals_r__ = context__.vals_r("censor_lim");
             pos__ = 0;
             censor_lim = vals_r__[pos__++];
-            current_statement_begin__ = 35;
+            current_statement_begin__ = 36;
             validate_non_negative_index("sid_c", "ncensor", ncensor);
             context__.validate_dims("data initialization", "sid_c", "int", context__.to_vec(ncensor));
             validate_non_negative_index("sid_c", "ncensor", ncensor);
@@ -396,7 +408,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < sid_c_limit_0__; ++i_0__) {
                 sid_c[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 36;
+            current_statement_begin__ = 37;
             validate_non_negative_index("pid_c", "ncensor", ncensor);
             context__.validate_dims("data initialization", "pid_c", "int", context__.to_vec(ncensor));
             validate_non_negative_index("pid_c", "ncensor", ncensor);
@@ -407,7 +419,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < pid_c_limit_0__; ++i_0__) {
                 pid_c[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 37;
+            current_statement_begin__ = 38;
             validate_non_negative_index("pred_c", "ncensor", ncensor);
             validate_non_negative_index("pred_c", "npred", npred);
             context__.validate_dims("data initialization", "pred_c", "matrix_d", context__.to_vec(ncensor,npred));
@@ -423,7 +435,7 @@ public:
                     pred_c(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 38;
+            current_statement_begin__ = 39;
             validate_non_negative_index("pred_sub_c", "ncensor", ncensor);
             validate_non_negative_index("pred_sub_c", "npred_sub", npred_sub);
             context__.validate_dims("data initialization", "pred_sub_c", "matrix_d", context__.to_vec(ncensor,npred_sub));
@@ -480,80 +492,81 @@ public:
             stan::math::check_corr_matrix(function__,"R",R);
             current_statement_begin__ = 29;
             current_statement_begin__ = 30;
-            stan::math::check_cov_matrix(function__,"prec",prec);
+            stan::math::check_cov_matrix(function__,"prec_prior",prec_prior);
             current_statement_begin__ = 31;
-            current_statement_begin__ = 34;
+            current_statement_begin__ = 32;
             current_statement_begin__ = 35;
+            current_statement_begin__ = 36;
             for (int k0__ = 0; k0__ < ncensor; ++k0__) {
                 check_greater_or_equal(function__,"sid_c[k0__]",sid_c[k0__],0);
             }
-            current_statement_begin__ = 36;
+            current_statement_begin__ = 37;
             for (int k0__ = 0; k0__ < ncensor; ++k0__) {
                 check_greater_or_equal(function__,"pid_c[k0__]",pid_c[k0__],0);
             }
-            current_statement_begin__ = 37;
             current_statement_begin__ = 38;
+            current_statement_begin__ = 39;
             // initialize data variables
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 44;
             validate_non_negative_index("T", "npred", npred);
             validate_non_negative_index("T", "npred", npred);
             T = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
             stan::math::fill(T,DUMMY_VAR__);
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 45;
             validate_non_negative_index("invprec", "npred", npred);
             validate_non_negative_index("invprec", "npred", npred);
             invprec = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
             stan::math::fill(invprec,DUMMY_VAR__);
 
-            current_statement_begin__ = 44;
+            current_statement_begin__ = 46;
             stan::math::assign(T, multiply(multiply(diag_matrix(Sigma_sd),R),diag_matrix(Sigma_sd)));
-            current_statement_begin__ = 45;
-            stan::math::assign(invprec, inverse(prec));
+            current_statement_begin__ = 47;
+            stan::math::assign(invprec, inverse(prec_prior));
 
             // validate transformed data
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 44;
             stan::math::check_cov_matrix(function__,"T",T);
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 45;
             stan::math::check_cov_matrix(function__,"invprec",invprec);
 
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 49;
+            current_statement_begin__ = 51;
         validate_non_negative_index("U_latent", "np", np);
             validate_non_negative_index("U_latent", "npred", npred);
             num_params_r__ += np * npred;
-            current_statement_begin__ = 50;
+            current_statement_begin__ = 52;
         validate_non_negative_index("g", "npred", npred);
             num_params_r__ += npred;
-            current_statement_begin__ = 51;
+            current_statement_begin__ = 53;
             validate_non_negative_index("pVAR", "npred", npred);
             num_params_r__ += ((npred * (npred - 1)) / 2 + npred);
-            current_statement_begin__ = 52;
-            ++num_params_r__;
             current_statement_begin__ = 54;
+            ++num_params_r__;
+            current_statement_begin__ = 56;
             validate_non_negative_index("alpha_latent", "npred_miss", npred_miss);
             num_params_r__ += npred_miss;
-            current_statement_begin__ = 55;
+            current_statement_begin__ = 57;
             validate_non_negative_index("alpha_mu", "npred_miss", npred_miss);
             num_params_r__ += npred_miss;
-            current_statement_begin__ = 56;
+            current_statement_begin__ = 58;
             validate_non_negative_index("alpha_theta", "npred_miss", npred_miss);
             num_params_r__ += npred_miss;
-            current_statement_begin__ = 57;
-            ++num_params_r__;
             current_statement_begin__ = 59;
+            ++num_params_r__;
+            current_statement_begin__ = 61;
         validate_non_negative_index("beta2_latent", "nsid", nsid);
             validate_non_negative_index("beta2_latent", "npred_sub", npred_sub);
             num_params_r__ += nsid * npred_sub;
-            current_statement_begin__ = 60;
+            current_statement_begin__ = 62;
         validate_non_negative_index("beta2_theta", "npred_sub", npred_sub);
             num_params_r__ += npred_sub;
-            current_statement_begin__ = 61;
+            current_statement_begin__ = 63;
         validate_non_negative_index("beta2_mu", "nsid", nsid);
             validate_non_negative_index("beta2_mu", "npred_sub", npred_sub);
             num_params_r__ += nsid * npred_sub;
-            current_statement_begin__ = 63;
+            current_statement_begin__ = 65;
             validate_non_negative_index("y_m_latent", "nmiss", nmiss);
             num_params_r__ += nmiss;
         } catch (const std::exception& e) {
@@ -881,7 +894,7 @@ public:
 
 
             // transformed parameters
-            current_statement_begin__ = 67;
+            current_statement_begin__ = 69;
             validate_non_negative_index("U", "np", np);
             validate_non_negative_index("U", "npred", npred);
             Eigen::Matrix<T__,Eigen::Dynamic,Eigen::Dynamic>  U(static_cast<Eigen::VectorXd::Index>(np),static_cast<Eigen::VectorXd::Index>(npred));
@@ -889,7 +902,7 @@ public:
 
             stan::math::initialize(U, DUMMY_VAR__);
             stan::math::fill(U,DUMMY_VAR__);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 70;
             validate_non_negative_index("beta2", "nsid", nsid);
             validate_non_negative_index("beta2", "npred_sub", npred_sub);
             Eigen::Matrix<T__,Eigen::Dynamic,Eigen::Dynamic>  beta2(static_cast<Eigen::VectorXd::Index>(nsid),static_cast<Eigen::VectorXd::Index>(npred_sub));
@@ -897,115 +910,115 @@ public:
 
             stan::math::initialize(beta2, DUMMY_VAR__);
             stan::math::fill(beta2,DUMMY_VAR__);
-            current_statement_begin__ = 69;
+            current_statement_begin__ = 71;
             validate_non_negative_index("alpha", "npred_miss", npred_miss);
             Eigen::Matrix<T__,Eigen::Dynamic,1>  alpha(static_cast<Eigen::VectorXd::Index>(npred_miss));
             (void) alpha;  // dummy to suppress unused var warning
 
             stan::math::initialize(alpha, DUMMY_VAR__);
             stan::math::fill(alpha,DUMMY_VAR__);
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 72;
             validate_non_negative_index("mu_m", "nmiss", nmiss);
             vector<T__> mu_m(nmiss);
             stan::math::initialize(mu_m, DUMMY_VAR__);
             stan::math::fill(mu_m,DUMMY_VAR__);
-            current_statement_begin__ = 71;
+            current_statement_begin__ = 73;
             validate_non_negative_index("mu", "nobs", nobs);
             vector<T__> mu(nobs);
             stan::math::initialize(mu, DUMMY_VAR__);
             stan::math::fill(mu,DUMMY_VAR__);
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 74;
             validate_non_negative_index("mu_c", "ncensor", ncensor);
             vector<T__> mu_c(ncensor);
             stan::math::initialize(mu_c, DUMMY_VAR__);
             stan::math::fill(mu_c,DUMMY_VAR__);
-            current_statement_begin__ = 73;
+            current_statement_begin__ = 75;
             validate_non_negative_index("y_m", "nmiss", nmiss);
             vector<T__> y_m(nmiss);
             stan::math::initialize(y_m, DUMMY_VAR__);
             stan::math::fill(y_m,DUMMY_VAR__);
-            current_statement_begin__ = 74;
+            current_statement_begin__ = 76;
             validate_non_negative_index("pmiss", "nobs", nobs);
             vector<T__> pmiss(nobs);
             stan::math::initialize(pmiss, DUMMY_VAR__);
             stan::math::fill(pmiss,DUMMY_VAR__);
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 77;
             validate_non_negative_index("pmiss_m", "nmiss", nmiss);
             vector<T__> pmiss_m(nmiss);
             stan::math::initialize(pmiss_m, DUMMY_VAR__);
             stan::math::fill(pmiss_m,DUMMY_VAR__);
 
 
-            current_statement_begin__ = 77;
+            current_statement_begin__ = 79;
             for (int sub = 1; sub <= nsid; ++sub) {
-                current_statement_begin__ = 78;
+                current_statement_begin__ = 80;
                 stan::math::assign(get_base1_lhs(beta2,sub,"beta2",1), add(get_base1(beta2_mu,sub,"beta2_mu",1),dot_product(beta2_theta,get_base1(beta2_latent,sub,"beta2_latent",1))));
             }
-            current_statement_begin__ = 80;
+            current_statement_begin__ = 82;
             for (int prot = 1; prot <= np; ++prot) {
-                current_statement_begin__ = 81;
+                current_statement_begin__ = 83;
                 stan::math::assign(get_base1_lhs(U,prot,"U",1), add(g,multiply(get_base1(U_latent,prot,"U_latent",1),pVAR)));
             }
-            current_statement_begin__ = 83;
-            stan::math::assign(alpha, add(alpha_mu,dot_product(alpha_theta,alpha_latent)));
             current_statement_begin__ = 85;
+            stan::math::assign(alpha, add(add(alpha_mu,alpha_prior),rows_dot_product(alpha_theta,alpha_latent)));
+            current_statement_begin__ = 87;
             for (int pep = 1; pep <= nobs; ++pep) {
 
-                current_statement_begin__ = 86;
+                current_statement_begin__ = 88;
                 stan::math::assign(get_base1_lhs(mu,pep,"mu",1), (dot_product(get_base1(pred_sub,pep,"pred_sub",1),get_base1(beta2,get_base1(sid,pep,"sid",1),"beta2",1)) + dot_product(get_base1(pred,pep,"pred",1),get_base1(U,get_base1(pid,pep,"pid",1),"U",1))));
-                current_statement_begin__ = 87;
+                current_statement_begin__ = 89;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 87;
+                    current_statement_begin__ = 89;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit((dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1)) + (alpha_response * get_base1(mu,pep,"mu",1)))));
                 } else {
-                    current_statement_begin__ = 88;
+                    current_statement_begin__ = 90;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1))));
                 }
-                current_statement_begin__ = 89;
+                current_statement_begin__ = 91;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),0))) {
-                    current_statement_begin__ = 89;
+                    current_statement_begin__ = 91;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.001);
                 }
-                current_statement_begin__ = 90;
+                current_statement_begin__ = 92;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),1))) {
-                    current_statement_begin__ = 90;
+                    current_statement_begin__ = 92;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.999);
                 }
             }
-            current_statement_begin__ = 93;
+            current_statement_begin__ = 95;
             for (int pep2 = 1; pep2 <= nmiss; ++pep2) {
 
-                current_statement_begin__ = 94;
-                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
-                current_statement_begin__ = 95;
-                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
                 current_statement_begin__ = 96;
+                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
+                current_statement_begin__ = 97;
+                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
+                current_statement_begin__ = 98;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 96;
+                    current_statement_begin__ = 98;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit((dot_product(alpha,get_base1(pred_miss_m,pep2,"pred_miss_m",1)) + (alpha_response * get_base1(mu_m,pep2,"mu_m",1)))));
                 } else {
-                    current_statement_begin__ = 97;
+                    current_statement_begin__ = 99;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep2,"pred_miss",1))));
                 }
-                current_statement_begin__ = 98;
+                current_statement_begin__ = 100;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),0))) {
-                    current_statement_begin__ = 98;
+                    current_statement_begin__ = 100;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.001);
                 }
-                current_statement_begin__ = 99;
+                current_statement_begin__ = 101;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),1))) {
-                    current_statement_begin__ = 99;
+                    current_statement_begin__ = 101;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.999);
                 }
             }
-            current_statement_begin__ = 101;
+            current_statement_begin__ = 103;
             for (int pep3 = 1; pep3 <= ncensor; ++pep3) {
 
-                current_statement_begin__ = 102;
+                current_statement_begin__ = 104;
                 stan::math::assign(get_base1_lhs(mu_c,pep3,"mu_c",1), (dot_product(get_base1(beta2,get_base1(sid_c,pep3,"sid_c",1),"beta2",1),get_base1(pred_sub_c,pep3,"pred_sub_c",1)) + dot_product(get_base1(U,get_base1(pid_c,pep3,"pid_c",1),"U",1),get_base1(pred_c,pep3,"pred_c",1))));
-                current_statement_begin__ = 103;
+                current_statement_begin__ = 105;
                 if (as_bool(logical_gt(get_base1(mu_c,pep3,"mu_c",1),censor_lim))) {
-                    current_statement_begin__ = 103;
+                    current_statement_begin__ = 105;
                     stan::math::assign(get_base1_lhs(mu_c,pep3,"mu_c",1), censor_lim);
                 }
             }
@@ -1081,19 +1094,19 @@ public:
 
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 67;
-            current_statement_begin__ = 68;
             current_statement_begin__ = 69;
             current_statement_begin__ = 70;
             current_statement_begin__ = 71;
             current_statement_begin__ = 72;
             current_statement_begin__ = 73;
             current_statement_begin__ = 74;
+            current_statement_begin__ = 75;
+            current_statement_begin__ = 76;
             for (int k0__ = 0; k0__ < nobs; ++k0__) {
                 check_greater_or_equal(function__,"pmiss[k0__]",pmiss[k0__],0);
                 check_less_or_equal(function__,"pmiss[k0__]",pmiss[k0__],1);
             }
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 77;
             for (int k0__ = 0; k0__ < nmiss; ++k0__) {
                 check_greater_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],0);
                 check_less_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],1);
@@ -1101,54 +1114,54 @@ public:
 
             // model body
 
-            current_statement_begin__ = 109;
+            current_statement_begin__ = 111;
             for (int sub = 1; sub <= nsid; ++sub) {
 
-                current_statement_begin__ = 110;
+                current_statement_begin__ = 112;
                 lp_accum__.add(normal_log<propto__>(get_base1(beta2_latent,sub,"beta2_latent",1), 0, 1));
-                current_statement_begin__ = 111;
+                current_statement_begin__ = 113;
                 lp_accum__.add(normal_log<propto__>(get_base1(beta2_mu,sub,"beta2_mu",1), 0, 1));
             }
-            current_statement_begin__ = 112;
-            lp_accum__.add(gamma_log<propto__>(beta2_theta, 1, 1));
-            current_statement_begin__ = 113;
-            lp_accum__.add(multi_normal_log<propto__>(g, mn, T));
             current_statement_begin__ = 114;
-            lp_accum__.add(inv_wishart_log<propto__>(pVAR, npred, invprec));
+            lp_accum__.add(gamma_log<propto__>(beta2_theta, 1, 1));
+            current_statement_begin__ = 115;
+            lp_accum__.add(multi_normal_log<propto__>(g, mn, T));
             current_statement_begin__ = 116;
+            lp_accum__.add(inv_wishart_log<propto__>(pVAR, npred, invprec));
+            current_statement_begin__ = 118;
             for (int prot = 1; prot <= np; ++prot) {
-                current_statement_begin__ = 117;
+                current_statement_begin__ = 119;
                 lp_accum__.add(multi_normal_log<propto__>(get_base1(U_latent,prot,"U_latent",1), mn, R));
             }
-            current_statement_begin__ = 119;
+            current_statement_begin__ = 121;
             lp_accum__.add(gamma_log<propto__>(ita, 1, 1));
-            current_statement_begin__ = 120;
-            lp_accum__.add(normal_log<propto__>(y, mu, ita));
             current_statement_begin__ = 122;
-            lp_accum__.add(normal_log<propto__>(alpha_latent, 0, 1));
-            current_statement_begin__ = 123;
-            lp_accum__.add(normal_log<propto__>(alpha_mu, 0, 1));
+            lp_accum__.add(normal_log<propto__>(y, mu, ita));
             current_statement_begin__ = 124;
-            lp_accum__.add(gamma_log<propto__>(alpha_theta, 1, 1));
+            lp_accum__.add(normal_log<propto__>(alpha_latent, 0, 1));
             current_statement_begin__ = 125;
+            lp_accum__.add(normal_log<propto__>(alpha_mu, 0, 1));
+            current_statement_begin__ = 126;
+            lp_accum__.add(gamma_log<propto__>(alpha_theta, 1, 1));
+            current_statement_begin__ = 127;
             for (int pep = 1; pep <= nobs; ++pep) {
-                current_statement_begin__ = 126;
+                current_statement_begin__ = 128;
                 lp_accum__.add(bernoulli_log<propto__>(get_base1(miss_obs,pep,"miss_obs",1), get_base1(pmiss,pep,"pmiss",1)));
             }
-            current_statement_begin__ = 128;
+            current_statement_begin__ = 130;
             for (int pep2 = 1; pep2 <= nmiss; ++pep2) {
 
-                current_statement_begin__ = 129;
+                current_statement_begin__ = 131;
                 lp_accum__.add(bernoulli_log<propto__>(get_base1(miss_m,pep2,"miss_m",1), get_base1(pmiss_m,pep2,"pmiss_m",1)));
-                current_statement_begin__ = 130;
+                current_statement_begin__ = 132;
                 lp_accum__.add(normal_log<propto__>(get_base1(y_m_latent,pep2,"y_m_latent",1), 0, 1));
             }
-            current_statement_begin__ = 132;
+            current_statement_begin__ = 134;
             if (as_bool(logical_gt(ncensor,0))) {
 
-                current_statement_begin__ = 133;
+                current_statement_begin__ = 135;
                 for (int pep = 1; pep <= ncensor; ++pep) {
-                    current_statement_begin__ = 134;
+                    current_statement_begin__ = 136;
                     lp_accum__.add(log((Phi(((censor_lim - get_base1(mu_c,pep,"mu_c",1)) / ita)) + 0.001)));
                 }
             }
@@ -1354,7 +1367,7 @@ public:
         (void) DUMMY_VAR__;  // suppress unused var warning
 
         try {
-            current_statement_begin__ = 67;
+            current_statement_begin__ = 69;
             validate_non_negative_index("U", "np", np);
             validate_non_negative_index("U", "npred", npred);
             matrix_d U(static_cast<Eigen::VectorXd::Index>(np),static_cast<Eigen::VectorXd::Index>(npred));
@@ -1362,7 +1375,7 @@ public:
 
             stan::math::initialize(U, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(U,DUMMY_VAR__);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 70;
             validate_non_negative_index("beta2", "nsid", nsid);
             validate_non_negative_index("beta2", "npred_sub", npred_sub);
             matrix_d beta2(static_cast<Eigen::VectorXd::Index>(nsid),static_cast<Eigen::VectorXd::Index>(npred_sub));
@@ -1370,133 +1383,133 @@ public:
 
             stan::math::initialize(beta2, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(beta2,DUMMY_VAR__);
-            current_statement_begin__ = 69;
+            current_statement_begin__ = 71;
             validate_non_negative_index("alpha", "npred_miss", npred_miss);
             vector_d alpha(static_cast<Eigen::VectorXd::Index>(npred_miss));
             (void) alpha;  // dummy to suppress unused var warning
 
             stan::math::initialize(alpha, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(alpha,DUMMY_VAR__);
-            current_statement_begin__ = 70;
+            current_statement_begin__ = 72;
             validate_non_negative_index("mu_m", "nmiss", nmiss);
             vector<double> mu_m(nmiss, 0.0);
             stan::math::initialize(mu_m, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mu_m,DUMMY_VAR__);
-            current_statement_begin__ = 71;
+            current_statement_begin__ = 73;
             validate_non_negative_index("mu", "nobs", nobs);
             vector<double> mu(nobs, 0.0);
             stan::math::initialize(mu, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mu,DUMMY_VAR__);
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 74;
             validate_non_negative_index("mu_c", "ncensor", ncensor);
             vector<double> mu_c(ncensor, 0.0);
             stan::math::initialize(mu_c, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mu_c,DUMMY_VAR__);
-            current_statement_begin__ = 73;
+            current_statement_begin__ = 75;
             validate_non_negative_index("y_m", "nmiss", nmiss);
             vector<double> y_m(nmiss, 0.0);
             stan::math::initialize(y_m, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(y_m,DUMMY_VAR__);
-            current_statement_begin__ = 74;
+            current_statement_begin__ = 76;
             validate_non_negative_index("pmiss", "nobs", nobs);
             vector<double> pmiss(nobs, 0.0);
             stan::math::initialize(pmiss, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(pmiss,DUMMY_VAR__);
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 77;
             validate_non_negative_index("pmiss_m", "nmiss", nmiss);
             vector<double> pmiss_m(nmiss, 0.0);
             stan::math::initialize(pmiss_m, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(pmiss_m,DUMMY_VAR__);
 
 
-            current_statement_begin__ = 77;
+            current_statement_begin__ = 79;
             for (int sub = 1; sub <= nsid; ++sub) {
-                current_statement_begin__ = 78;
+                current_statement_begin__ = 80;
                 stan::math::assign(get_base1_lhs(beta2,sub,"beta2",1), add(get_base1(beta2_mu,sub,"beta2_mu",1),dot_product(beta2_theta,get_base1(beta2_latent,sub,"beta2_latent",1))));
             }
-            current_statement_begin__ = 80;
+            current_statement_begin__ = 82;
             for (int prot = 1; prot <= np; ++prot) {
-                current_statement_begin__ = 81;
+                current_statement_begin__ = 83;
                 stan::math::assign(get_base1_lhs(U,prot,"U",1), add(g,multiply(get_base1(U_latent,prot,"U_latent",1),pVAR)));
             }
-            current_statement_begin__ = 83;
-            stan::math::assign(alpha, add(alpha_mu,dot_product(alpha_theta,alpha_latent)));
             current_statement_begin__ = 85;
+            stan::math::assign(alpha, add(add(alpha_mu,alpha_prior),rows_dot_product(alpha_theta,alpha_latent)));
+            current_statement_begin__ = 87;
             for (int pep = 1; pep <= nobs; ++pep) {
 
-                current_statement_begin__ = 86;
+                current_statement_begin__ = 88;
                 stan::math::assign(get_base1_lhs(mu,pep,"mu",1), (dot_product(get_base1(pred_sub,pep,"pred_sub",1),get_base1(beta2,get_base1(sid,pep,"sid",1),"beta2",1)) + dot_product(get_base1(pred,pep,"pred",1),get_base1(U,get_base1(pid,pep,"pid",1),"U",1))));
-                current_statement_begin__ = 87;
+                current_statement_begin__ = 89;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 87;
+                    current_statement_begin__ = 89;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit((dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1)) + (alpha_response * get_base1(mu,pep,"mu",1)))));
                 } else {
-                    current_statement_begin__ = 88;
+                    current_statement_begin__ = 90;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1))));
                 }
-                current_statement_begin__ = 89;
+                current_statement_begin__ = 91;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),0))) {
-                    current_statement_begin__ = 89;
+                    current_statement_begin__ = 91;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.001);
                 }
-                current_statement_begin__ = 90;
+                current_statement_begin__ = 92;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),1))) {
-                    current_statement_begin__ = 90;
+                    current_statement_begin__ = 92;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.999);
                 }
             }
-            current_statement_begin__ = 93;
+            current_statement_begin__ = 95;
             for (int pep2 = 1; pep2 <= nmiss; ++pep2) {
 
-                current_statement_begin__ = 94;
-                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
-                current_statement_begin__ = 95;
-                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
                 current_statement_begin__ = 96;
+                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
+                current_statement_begin__ = 97;
+                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
+                current_statement_begin__ = 98;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 96;
+                    current_statement_begin__ = 98;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit((dot_product(alpha,get_base1(pred_miss_m,pep2,"pred_miss_m",1)) + (alpha_response * get_base1(mu_m,pep2,"mu_m",1)))));
                 } else {
-                    current_statement_begin__ = 97;
+                    current_statement_begin__ = 99;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep2,"pred_miss",1))));
                 }
-                current_statement_begin__ = 98;
+                current_statement_begin__ = 100;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),0))) {
-                    current_statement_begin__ = 98;
+                    current_statement_begin__ = 100;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.001);
                 }
-                current_statement_begin__ = 99;
+                current_statement_begin__ = 101;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),1))) {
-                    current_statement_begin__ = 99;
+                    current_statement_begin__ = 101;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.999);
                 }
             }
-            current_statement_begin__ = 101;
+            current_statement_begin__ = 103;
             for (int pep3 = 1; pep3 <= ncensor; ++pep3) {
 
-                current_statement_begin__ = 102;
+                current_statement_begin__ = 104;
                 stan::math::assign(get_base1_lhs(mu_c,pep3,"mu_c",1), (dot_product(get_base1(beta2,get_base1(sid_c,pep3,"sid_c",1),"beta2",1),get_base1(pred_sub_c,pep3,"pred_sub_c",1)) + dot_product(get_base1(U,get_base1(pid_c,pep3,"pid_c",1),"U",1),get_base1(pred_c,pep3,"pred_c",1))));
-                current_statement_begin__ = 103;
+                current_statement_begin__ = 105;
                 if (as_bool(logical_gt(get_base1(mu_c,pep3,"mu_c",1),censor_lim))) {
-                    current_statement_begin__ = 103;
+                    current_statement_begin__ = 105;
                     stan::math::assign(get_base1_lhs(mu_c,pep3,"mu_c",1), censor_lim);
                 }
             }
 
             // validate transformed parameters
-            current_statement_begin__ = 67;
-            current_statement_begin__ = 68;
             current_statement_begin__ = 69;
             current_statement_begin__ = 70;
             current_statement_begin__ = 71;
             current_statement_begin__ = 72;
             current_statement_begin__ = 73;
             current_statement_begin__ = 74;
+            current_statement_begin__ = 75;
+            current_statement_begin__ = 76;
             for (int k0__ = 0; k0__ < nobs; ++k0__) {
                 check_greater_or_equal(function__,"pmiss[k0__]",pmiss[k0__],0);
                 check_less_or_equal(function__,"pmiss[k0__]",pmiss[k0__],1);
             }
-            current_statement_begin__ = 75;
+            current_statement_begin__ = 77;
             for (int k0__ = 0; k0__ < nmiss; ++k0__) {
                 check_greater_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],0);
                 check_less_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],1);
@@ -1849,7 +1862,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_mmlm_code");
-    reader.add_event(129, 129, "end", "model_mmlm_code");
+    reader.add_event(132, 132, "end", "model_mmlm_code");
     return reader;
 }
 
@@ -1878,8 +1891,9 @@ private:
     vector<int> miss_obs;
     matrix_d R;
     vector_d Sigma_sd;
-    matrix_d prec;
+    matrix_d prec_prior;
     vector_d mn;
+    vector_d alpha_prior;
     matrix_d T;
     matrix_d invprec;
 public:
@@ -1916,55 +1930,55 @@ public:
 
         // initialize member variables
         try {
-            current_statement_begin__ = 4;
+            current_statement_begin__ = 5;
             context__.validate_dims("data initialization", "nobs", "int", context__.to_vec());
             nobs = int(0);
             vals_i__ = context__.vals_i("nobs");
             pos__ = 0;
             nobs = vals_i__[pos__++];
-            current_statement_begin__ = 5;
+            current_statement_begin__ = 6;
             context__.validate_dims("data initialization", "nmiss", "int", context__.to_vec());
             nmiss = int(0);
             vals_i__ = context__.vals_i("nmiss");
             pos__ = 0;
             nmiss = vals_i__[pos__++];
-            current_statement_begin__ = 6;
+            current_statement_begin__ = 7;
             context__.validate_dims("data initialization", "npred", "int", context__.to_vec());
             npred = int(0);
             vals_i__ = context__.vals_i("npred");
             pos__ = 0;
             npred = vals_i__[pos__++];
-            current_statement_begin__ = 7;
+            current_statement_begin__ = 8;
             context__.validate_dims("data initialization", "npred_miss", "int", context__.to_vec());
             npred_miss = int(0);
             vals_i__ = context__.vals_i("npred_miss");
             pos__ = 0;
             npred_miss = vals_i__[pos__++];
-            current_statement_begin__ = 8;
+            current_statement_begin__ = 9;
             context__.validate_dims("data initialization", "npred_sub", "int", context__.to_vec());
             npred_sub = int(0);
             vals_i__ = context__.vals_i("npred_sub");
             pos__ = 0;
             npred_sub = vals_i__[pos__++];
-            current_statement_begin__ = 9;
+            current_statement_begin__ = 10;
             context__.validate_dims("data initialization", "nsid", "int", context__.to_vec());
             nsid = int(0);
             vals_i__ = context__.vals_i("nsid");
             pos__ = 0;
             nsid = vals_i__[pos__++];
-            current_statement_begin__ = 10;
+            current_statement_begin__ = 11;
             context__.validate_dims("data initialization", "np", "int", context__.to_vec());
             np = int(0);
             vals_i__ = context__.vals_i("np");
             pos__ = 0;
             np = vals_i__[pos__++];
-            current_statement_begin__ = 11;
+            current_statement_begin__ = 12;
             context__.validate_dims("data initialization", "respond_dep", "int", context__.to_vec());
             respond_dep = int(0);
             vals_i__ = context__.vals_i("respond_dep");
             pos__ = 0;
             respond_dep = vals_i__[pos__++];
-            current_statement_begin__ = 13;
+            current_statement_begin__ = 14;
             validate_non_negative_index("sid", "nobs", nobs);
             context__.validate_dims("data initialization", "sid", "int", context__.to_vec(nobs));
             validate_non_negative_index("sid", "nobs", nobs);
@@ -1975,7 +1989,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < sid_limit_0__; ++i_0__) {
                 sid[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 14;
+            current_statement_begin__ = 15;
             validate_non_negative_index("sid_m", "nmiss", nmiss);
             context__.validate_dims("data initialization", "sid_m", "int", context__.to_vec(nmiss));
             validate_non_negative_index("sid_m", "nmiss", nmiss);
@@ -1986,7 +2000,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < sid_m_limit_0__; ++i_0__) {
                 sid_m[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 16;
+            current_statement_begin__ = 17;
             validate_non_negative_index("pid", "nobs", nobs);
             context__.validate_dims("data initialization", "pid", "int", context__.to_vec(nobs));
             validate_non_negative_index("pid", "nobs", nobs);
@@ -1997,7 +2011,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < pid_limit_0__; ++i_0__) {
                 pid[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 17;
+            current_statement_begin__ = 18;
             validate_non_negative_index("pid_m", "nmiss", nmiss);
             context__.validate_dims("data initialization", "pid_m", "int", context__.to_vec(nmiss));
             validate_non_negative_index("pid_m", "nmiss", nmiss);
@@ -2008,7 +2022,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < pid_m_limit_0__; ++i_0__) {
                 pid_m[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 19;
+            current_statement_begin__ = 20;
             validate_non_negative_index("pred", "nobs", nobs);
             validate_non_negative_index("pred", "npred", npred);
             context__.validate_dims("data initialization", "pred", "matrix_d", context__.to_vec(nobs,npred));
@@ -2024,7 +2038,7 @@ public:
                     pred(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 20;
+            current_statement_begin__ = 21;
             validate_non_negative_index("pred_m", "nmiss", nmiss);
             validate_non_negative_index("pred_m", "npred", npred);
             context__.validate_dims("data initialization", "pred_m", "matrix_d", context__.to_vec(nmiss,npred));
@@ -2040,7 +2054,7 @@ public:
                     pred_m(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 22;
+            current_statement_begin__ = 23;
             validate_non_negative_index("pred_miss", "nobs", nobs);
             validate_non_negative_index("pred_miss", "npred_miss", npred_miss);
             context__.validate_dims("data initialization", "pred_miss", "matrix_d", context__.to_vec(nobs,npred_miss));
@@ -2056,7 +2070,7 @@ public:
                     pred_miss(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 23;
+            current_statement_begin__ = 24;
             validate_non_negative_index("pred_miss_m", "nmiss", nmiss);
             validate_non_negative_index("pred_miss_m", "npred_miss", npred_miss);
             context__.validate_dims("data initialization", "pred_miss_m", "matrix_d", context__.to_vec(nmiss,npred_miss));
@@ -2072,7 +2086,7 @@ public:
                     pred_miss_m(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 24;
+            current_statement_begin__ = 25;
             validate_non_negative_index("pred_sub", "nobs", nobs);
             validate_non_negative_index("pred_sub", "npred_sub", npred_sub);
             context__.validate_dims("data initialization", "pred_sub", "matrix_d", context__.to_vec(nobs,npred_sub));
@@ -2088,7 +2102,7 @@ public:
                     pred_sub(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 25;
+            current_statement_begin__ = 26;
             validate_non_negative_index("pred_sub_m", "nmiss", nmiss);
             validate_non_negative_index("pred_sub_m", "npred_sub", npred_sub);
             context__.validate_dims("data initialization", "pred_sub_m", "matrix_d", context__.to_vec(nmiss,npred_sub));
@@ -2104,7 +2118,7 @@ public:
                     pred_sub_m(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 26;
+            current_statement_begin__ = 27;
             validate_non_negative_index("y", "nobs", nobs);
             context__.validate_dims("data initialization", "y", "double", context__.to_vec(nobs));
             validate_non_negative_index("y", "nobs", nobs);
@@ -2115,7 +2129,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < y_limit_0__; ++i_0__) {
                 y[i_0__] = vals_r__[pos__++];
             }
-            current_statement_begin__ = 27;
+            current_statement_begin__ = 28;
             validate_non_negative_index("miss_m", "nmiss", nmiss);
             context__.validate_dims("data initialization", "miss_m", "int", context__.to_vec(nmiss));
             validate_non_negative_index("miss_m", "nmiss", nmiss);
@@ -2126,7 +2140,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < miss_m_limit_0__; ++i_0__) {
                 miss_m[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 28;
+            current_statement_begin__ = 29;
             validate_non_negative_index("miss_obs", "nobs", nobs);
             context__.validate_dims("data initialization", "miss_obs", "int", context__.to_vec(nobs));
             validate_non_negative_index("miss_obs", "nobs", nobs);
@@ -2137,7 +2151,7 @@ public:
             for (size_t i_0__ = 0; i_0__ < miss_obs_limit_0__; ++i_0__) {
                 miss_obs[i_0__] = vals_i__[pos__++];
             }
-            current_statement_begin__ = 30;
+            current_statement_begin__ = 31;
             validate_non_negative_index("R", "npred", npred);
             validate_non_negative_index("R", "npred", npred);
             context__.validate_dims("data initialization", "R", "matrix_d", context__.to_vec(npred,npred));
@@ -2152,7 +2166,7 @@ public:
                     R(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 31;
+            current_statement_begin__ = 32;
             validate_non_negative_index("Sigma_sd", "npred", npred);
             context__.validate_dims("data initialization", "Sigma_sd", "vector_d", context__.to_vec(npred));
             validate_non_negative_index("Sigma_sd", "npred", npred);
@@ -2163,22 +2177,22 @@ public:
             for (size_t i_vec__ = 0; i_vec__ < Sigma_sd_i_vec_lim__; ++i_vec__) {
                 Sigma_sd[i_vec__] = vals_r__[pos__++];
             }
-            current_statement_begin__ = 32;
-            validate_non_negative_index("prec", "npred", npred);
-            validate_non_negative_index("prec", "npred", npred);
-            context__.validate_dims("data initialization", "prec", "matrix_d", context__.to_vec(npred,npred));
-            validate_non_negative_index("prec", "npred", npred);
-            validate_non_negative_index("prec", "npred", npred);
-            prec = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
-            vals_r__ = context__.vals_r("prec");
+            current_statement_begin__ = 33;
+            validate_non_negative_index("prec_prior", "npred", npred);
+            validate_non_negative_index("prec_prior", "npred", npred);
+            context__.validate_dims("data initialization", "prec_prior", "matrix_d", context__.to_vec(npred,npred));
+            validate_non_negative_index("prec_prior", "npred", npred);
+            validate_non_negative_index("prec_prior", "npred", npred);
+            prec_prior = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
+            vals_r__ = context__.vals_r("prec_prior");
             pos__ = 0;
-            size_t prec_k_mat_lim__ = npred;
-            for (size_t n_mat__ = 0; n_mat__ < prec_k_mat_lim__; ++n_mat__) {
-                for (size_t m_mat__ = 0; m_mat__ < prec_k_mat_lim__; ++m_mat__) {
-                    prec(m_mat__,n_mat__) = vals_r__[pos__++];
+            size_t prec_prior_k_mat_lim__ = npred;
+            for (size_t n_mat__ = 0; n_mat__ < prec_prior_k_mat_lim__; ++n_mat__) {
+                for (size_t m_mat__ = 0; m_mat__ < prec_prior_k_mat_lim__; ++m_mat__) {
+                    prec_prior(m_mat__,n_mat__) = vals_r__[pos__++];
                 }
             }
-            current_statement_begin__ = 33;
+            current_statement_begin__ = 34;
             validate_non_negative_index("mn", "npred", npred);
             context__.validate_dims("data initialization", "mn", "vector_d", context__.to_vec(npred));
             validate_non_negative_index("mn", "npred", npred);
@@ -2189,109 +2203,121 @@ public:
             for (size_t i_vec__ = 0; i_vec__ < mn_i_vec_lim__; ++i_vec__) {
                 mn[i_vec__] = vals_r__[pos__++];
             }
+            current_statement_begin__ = 35;
+            validate_non_negative_index("alpha_prior", "npred_miss", npred_miss);
+            context__.validate_dims("data initialization", "alpha_prior", "vector_d", context__.to_vec(npred_miss));
+            validate_non_negative_index("alpha_prior", "npred_miss", npred_miss);
+            alpha_prior = vector_d(static_cast<Eigen::VectorXd::Index>(npred_miss));
+            vals_r__ = context__.vals_r("alpha_prior");
+            pos__ = 0;
+            size_t alpha_prior_i_vec_lim__ = npred_miss;
+            for (size_t i_vec__ = 0; i_vec__ < alpha_prior_i_vec_lim__; ++i_vec__) {
+                alpha_prior[i_vec__] = vals_r__[pos__++];
+            }
 
             // validate, data variables
-            current_statement_begin__ = 4;
-            check_greater_or_equal(function__,"nobs",nobs,0);
             current_statement_begin__ = 5;
+            check_greater_or_equal(function__,"nobs",nobs,0);
             current_statement_begin__ = 6;
             current_statement_begin__ = 7;
             current_statement_begin__ = 8;
             current_statement_begin__ = 9;
             current_statement_begin__ = 10;
             current_statement_begin__ = 11;
-            current_statement_begin__ = 13;
+            current_statement_begin__ = 12;
+            current_statement_begin__ = 14;
             for (int k0__ = 0; k0__ < nobs; ++k0__) {
                 check_greater_or_equal(function__,"sid[k0__]",sid[k0__],0);
             }
-            current_statement_begin__ = 14;
+            current_statement_begin__ = 15;
             for (int k0__ = 0; k0__ < nmiss; ++k0__) {
                 check_greater_or_equal(function__,"sid_m[k0__]",sid_m[k0__],0);
             }
-            current_statement_begin__ = 16;
+            current_statement_begin__ = 17;
             for (int k0__ = 0; k0__ < nobs; ++k0__) {
                 check_greater_or_equal(function__,"pid[k0__]",pid[k0__],0);
             }
-            current_statement_begin__ = 17;
+            current_statement_begin__ = 18;
             for (int k0__ = 0; k0__ < nmiss; ++k0__) {
                 check_greater_or_equal(function__,"pid_m[k0__]",pid_m[k0__],0);
             }
-            current_statement_begin__ = 19;
             current_statement_begin__ = 20;
-            current_statement_begin__ = 22;
+            current_statement_begin__ = 21;
             current_statement_begin__ = 23;
             current_statement_begin__ = 24;
             current_statement_begin__ = 25;
             current_statement_begin__ = 26;
             current_statement_begin__ = 27;
             current_statement_begin__ = 28;
-            current_statement_begin__ = 30;
-            stan::math::check_corr_matrix(function__,"R",R);
+            current_statement_begin__ = 29;
             current_statement_begin__ = 31;
+            stan::math::check_corr_matrix(function__,"R",R);
             current_statement_begin__ = 32;
-            stan::math::check_cov_matrix(function__,"prec",prec);
             current_statement_begin__ = 33;
+            stan::math::check_cov_matrix(function__,"prec_prior",prec_prior);
+            current_statement_begin__ = 34;
+            current_statement_begin__ = 35;
             // initialize data variables
-            current_statement_begin__ = 37;
+            current_statement_begin__ = 39;
             validate_non_negative_index("T", "npred", npred);
             validate_non_negative_index("T", "npred", npred);
             T = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
             stan::math::fill(T,DUMMY_VAR__);
-            current_statement_begin__ = 38;
+            current_statement_begin__ = 40;
             validate_non_negative_index("invprec", "npred", npred);
             validate_non_negative_index("invprec", "npred", npred);
             invprec = matrix_d(static_cast<Eigen::VectorXd::Index>(npred),static_cast<Eigen::VectorXd::Index>(npred));
             stan::math::fill(invprec,DUMMY_VAR__);
 
-            current_statement_begin__ = 39;
+            current_statement_begin__ = 41;
             stan::math::assign(T, multiply(multiply(diag_matrix(Sigma_sd),R),diag_matrix(Sigma_sd)));
-            current_statement_begin__ = 40;
-            stan::math::assign(invprec, inverse(prec));
+            current_statement_begin__ = 42;
+            stan::math::assign(invprec, inverse(prec_prior));
 
             // validate transformed data
-            current_statement_begin__ = 37;
+            current_statement_begin__ = 39;
             stan::math::check_cov_matrix(function__,"T",T);
-            current_statement_begin__ = 38;
+            current_statement_begin__ = 40;
             stan::math::check_cov_matrix(function__,"invprec",invprec);
 
             // validate, set parameter ranges
             num_params_r__ = 0U;
             param_ranges_i__.clear();
-            current_statement_begin__ = 45;
+            current_statement_begin__ = 47;
         validate_non_negative_index("U_latent", "np", np);
             validate_non_negative_index("U_latent", "npred", npred);
             num_params_r__ += np * npred;
-            current_statement_begin__ = 46;
+            current_statement_begin__ = 48;
         validate_non_negative_index("g", "npred", npred);
             num_params_r__ += npred;
-            current_statement_begin__ = 47;
+            current_statement_begin__ = 49;
             validate_non_negative_index("pVAR", "npred", npred);
             num_params_r__ += ((npred * (npred - 1)) / 2 + npred);
-            current_statement_begin__ = 48;
-            ++num_params_r__;
             current_statement_begin__ = 50;
+            ++num_params_r__;
+            current_statement_begin__ = 52;
             validate_non_negative_index("alpha_latent", "npred_miss", npred_miss);
             num_params_r__ += npred_miss;
-            current_statement_begin__ = 51;
+            current_statement_begin__ = 53;
             validate_non_negative_index("alpha_mu", "npred_miss", npred_miss);
             num_params_r__ += npred_miss;
-            current_statement_begin__ = 52;
+            current_statement_begin__ = 54;
             validate_non_negative_index("alpha_theta", "npred_miss", npred_miss);
             num_params_r__ += npred_miss;
-            current_statement_begin__ = 53;
-            ++num_params_r__;
             current_statement_begin__ = 55;
+            ++num_params_r__;
+            current_statement_begin__ = 57;
         validate_non_negative_index("beta2_latent", "nsid", nsid);
             validate_non_negative_index("beta2_latent", "npred_sub", npred_sub);
             num_params_r__ += nsid * npred_sub;
-            current_statement_begin__ = 56;
+            current_statement_begin__ = 58;
         validate_non_negative_index("beta2_theta", "npred_sub", npred_sub);
             num_params_r__ += npred_sub;
-            current_statement_begin__ = 57;
+            current_statement_begin__ = 59;
         validate_non_negative_index("beta2_mu", "nsid", nsid);
             validate_non_negative_index("beta2_mu", "npred_sub", npred_sub);
             num_params_r__ += nsid * npred_sub;
-            current_statement_begin__ = 59;
+            current_statement_begin__ = 61;
             validate_non_negative_index("y_m_latent", "nmiss", nmiss);
             num_params_r__ += nmiss;
         } catch (const std::exception& e) {
@@ -2619,7 +2645,7 @@ public:
 
 
             // transformed parameters
-            current_statement_begin__ = 63;
+            current_statement_begin__ = 65;
             validate_non_negative_index("U", "np", np);
             validate_non_negative_index("U", "npred", npred);
             Eigen::Matrix<T__,Eigen::Dynamic,Eigen::Dynamic>  U(static_cast<Eigen::VectorXd::Index>(np),static_cast<Eigen::VectorXd::Index>(npred));
@@ -2627,7 +2653,7 @@ public:
 
             stan::math::initialize(U, DUMMY_VAR__);
             stan::math::fill(U,DUMMY_VAR__);
-            current_statement_begin__ = 64;
+            current_statement_begin__ = 66;
             validate_non_negative_index("beta2", "nsid", nsid);
             validate_non_negative_index("beta2", "npred_sub", npred_sub);
             Eigen::Matrix<T__,Eigen::Dynamic,Eigen::Dynamic>  beta2(static_cast<Eigen::VectorXd::Index>(nsid),static_cast<Eigen::VectorXd::Index>(npred_sub));
@@ -2635,99 +2661,99 @@ public:
 
             stan::math::initialize(beta2, DUMMY_VAR__);
             stan::math::fill(beta2,DUMMY_VAR__);
-            current_statement_begin__ = 65;
+            current_statement_begin__ = 67;
             validate_non_negative_index("alpha", "npred_miss", npred_miss);
             Eigen::Matrix<T__,Eigen::Dynamic,1>  alpha(static_cast<Eigen::VectorXd::Index>(npred_miss));
             (void) alpha;  // dummy to suppress unused var warning
 
             stan::math::initialize(alpha, DUMMY_VAR__);
             stan::math::fill(alpha,DUMMY_VAR__);
-            current_statement_begin__ = 67;
+            current_statement_begin__ = 69;
             validate_non_negative_index("mu", "nobs", nobs);
             vector<T__> mu(nobs);
             stan::math::initialize(mu, DUMMY_VAR__);
             stan::math::fill(mu,DUMMY_VAR__);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 70;
             validate_non_negative_index("mu_m", "nmiss", nmiss);
             vector<T__> mu_m(nmiss);
             stan::math::initialize(mu_m, DUMMY_VAR__);
             stan::math::fill(mu_m,DUMMY_VAR__);
-            current_statement_begin__ = 69;
+            current_statement_begin__ = 71;
             validate_non_negative_index("y_m", "nmiss", nmiss);
             vector<T__> y_m(nmiss);
             stan::math::initialize(y_m, DUMMY_VAR__);
             stan::math::fill(y_m,DUMMY_VAR__);
-            current_statement_begin__ = 71;
+            current_statement_begin__ = 73;
             validate_non_negative_index("pmiss", "nobs", nobs);
             vector<T__> pmiss(nobs);
             stan::math::initialize(pmiss, DUMMY_VAR__);
             stan::math::fill(pmiss,DUMMY_VAR__);
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 74;
             validate_non_negative_index("pmiss_m", "nmiss", nmiss);
             vector<T__> pmiss_m(nmiss);
             stan::math::initialize(pmiss_m, DUMMY_VAR__);
             stan::math::fill(pmiss_m,DUMMY_VAR__);
 
 
-            current_statement_begin__ = 74;
+            current_statement_begin__ = 76;
             for (int sub = 1; sub <= nsid; ++sub) {
-                current_statement_begin__ = 75;
+                current_statement_begin__ = 77;
                 stan::math::assign(get_base1_lhs(beta2,sub,"beta2",1), add(get_base1(beta2_mu,sub,"beta2_mu",1),dot_product(beta2_theta,get_base1(beta2_latent,sub,"beta2_latent",1))));
             }
-            current_statement_begin__ = 77;
+            current_statement_begin__ = 79;
             for (int prot = 1; prot <= np; ++prot) {
-                current_statement_begin__ = 78;
+                current_statement_begin__ = 80;
                 stan::math::assign(get_base1_lhs(U,prot,"U",1), add(g,multiply(get_base1(U_latent,prot,"U_latent",1),pVAR)));
             }
-            current_statement_begin__ = 80;
-            stan::math::assign(alpha, add(alpha_mu,dot_product(alpha_theta,alpha_latent)));
             current_statement_begin__ = 82;
+            stan::math::assign(alpha, add(add(alpha_mu,alpha_prior),dot_product(alpha_theta,alpha_latent)));
+            current_statement_begin__ = 84;
             for (int pep = 1; pep <= nobs; ++pep) {
 
-                current_statement_begin__ = 83;
+                current_statement_begin__ = 85;
                 stan::math::assign(get_base1_lhs(mu,pep,"mu",1), (dot_product(get_base1(pred_sub,pep,"pred_sub",1),get_base1(beta2,get_base1(sid,pep,"sid",1),"beta2",1)) + dot_product(get_base1(pred,pep,"pred",1),get_base1(U,get_base1(pid,pep,"pid",1),"U",1))));
-                current_statement_begin__ = 84;
+                current_statement_begin__ = 86;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 84;
+                    current_statement_begin__ = 86;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit((dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1)) + (alpha_response * get_base1(mu,pep,"mu",1)))));
                 } else {
-                    current_statement_begin__ = 85;
+                    current_statement_begin__ = 87;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1))));
                 }
-                current_statement_begin__ = 86;
+                current_statement_begin__ = 88;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),0))) {
-                    current_statement_begin__ = 86;
+                    current_statement_begin__ = 88;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.001);
                 }
-                current_statement_begin__ = 87;
+                current_statement_begin__ = 89;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),1))) {
-                    current_statement_begin__ = 87;
+                    current_statement_begin__ = 89;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.999);
                 }
             }
-            current_statement_begin__ = 90;
+            current_statement_begin__ = 92;
             for (int pep2 = 1; pep2 <= nmiss; ++pep2) {
 
-                current_statement_begin__ = 91;
-                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
-                current_statement_begin__ = 92;
-                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
                 current_statement_begin__ = 93;
+                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
+                current_statement_begin__ = 94;
+                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
+                current_statement_begin__ = 95;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 93;
+                    current_statement_begin__ = 95;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit((dot_product(alpha,get_base1(pred_miss_m,pep2,"pred_miss_m",1)) + (alpha_response * get_base1(mu_m,pep2,"mu_m",1)))));
                 } else {
-                    current_statement_begin__ = 94;
+                    current_statement_begin__ = 96;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep2,"pred_miss",1))));
                 }
-                current_statement_begin__ = 96;
+                current_statement_begin__ = 98;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),0))) {
-                    current_statement_begin__ = 96;
+                    current_statement_begin__ = 98;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.001);
                 }
-                current_statement_begin__ = 97;
+                current_statement_begin__ = 99;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),1))) {
-                    current_statement_begin__ = 97;
+                    current_statement_begin__ = 99;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.999);
                 }
             }
@@ -2796,18 +2822,18 @@ public:
 
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 63;
-            current_statement_begin__ = 64;
             current_statement_begin__ = 65;
+            current_statement_begin__ = 66;
             current_statement_begin__ = 67;
-            current_statement_begin__ = 68;
             current_statement_begin__ = 69;
+            current_statement_begin__ = 70;
             current_statement_begin__ = 71;
+            current_statement_begin__ = 73;
             for (int k0__ = 0; k0__ < nobs; ++k0__) {
                 check_greater_or_equal(function__,"pmiss[k0__]",pmiss[k0__],0);
                 check_less_or_equal(function__,"pmiss[k0__]",pmiss[k0__],1);
             }
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 74;
             for (int k0__ = 0; k0__ < nmiss; ++k0__) {
                 check_greater_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],0);
                 check_less_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],1);
@@ -2815,48 +2841,48 @@ public:
 
             // model body
 
-            current_statement_begin__ = 104;
+            current_statement_begin__ = 106;
             for (int sub = 1; sub <= nsid; ++sub) {
 
-                current_statement_begin__ = 105;
+                current_statement_begin__ = 107;
                 lp_accum__.add(normal_log<propto__>(get_base1(beta2_latent,sub,"beta2_latent",1), 0, 1));
-                current_statement_begin__ = 106;
+                current_statement_begin__ = 108;
                 lp_accum__.add(normal_log<propto__>(get_base1(beta2_mu,sub,"beta2_mu",1), 0, 1));
             }
-            current_statement_begin__ = 107;
-            lp_accum__.add(gamma_log<propto__>(beta2_theta, 1, 1));
             current_statement_begin__ = 109;
+            lp_accum__.add(gamma_log<propto__>(beta2_theta, 1, 1));
+            current_statement_begin__ = 111;
             lp_accum__.add(multi_normal_log<propto__>(g, mn, T));
-            current_statement_begin__ = 110;
-            lp_accum__.add(inv_wishart_log<propto__>(pVAR, npred, invprec));
             current_statement_begin__ = 112;
+            lp_accum__.add(inv_wishart_log<propto__>(pVAR, npred, invprec));
+            current_statement_begin__ = 114;
             for (int prot = 1; prot <= np; ++prot) {
-                current_statement_begin__ = 113;
+                current_statement_begin__ = 115;
                 lp_accum__.add(multi_normal_log<propto__>(get_base1(U_latent,prot,"U_latent",1), mn, R));
             }
-            current_statement_begin__ = 115;
+            current_statement_begin__ = 117;
             lp_accum__.add(gamma_log<propto__>(ita, 1, 1));
-            current_statement_begin__ = 116;
-            lp_accum__.add(normal_log<propto__>(y, mu, ita));
             current_statement_begin__ = 118;
-            lp_accum__.add(normal_log<propto__>(alpha_latent, 0, 1));
-            current_statement_begin__ = 119;
-            lp_accum__.add(normal_log<propto__>(alpha_mu, 0, 1));
+            lp_accum__.add(normal_log<propto__>(y, mu, ita));
             current_statement_begin__ = 120;
-            lp_accum__.add(gamma_log<propto__>(alpha_theta, 1, 1));
+            lp_accum__.add(normal_log<propto__>(alpha_latent, 0, 1));
             current_statement_begin__ = 121;
-            lp_accum__.add(normal_log<propto__>(alpha_response, 0, 1));
+            lp_accum__.add(normal_log<propto__>(alpha_mu, 0, 1));
+            current_statement_begin__ = 122;
+            lp_accum__.add(gamma_log<propto__>(alpha_theta, 1, 1));
             current_statement_begin__ = 123;
+            lp_accum__.add(normal_log<propto__>(alpha_response, 0, 1));
+            current_statement_begin__ = 125;
             for (int pep = 1; pep <= nobs; ++pep) {
-                current_statement_begin__ = 124;
+                current_statement_begin__ = 126;
                 lp_accum__.add(bernoulli_log<propto__>(get_base1(miss_obs,pep,"miss_obs",1), get_base1(pmiss,pep,"pmiss",1)));
             }
-            current_statement_begin__ = 126;
+            current_statement_begin__ = 128;
             for (int pep2 = 1; pep2 <= nmiss; ++pep2) {
 
-                current_statement_begin__ = 127;
+                current_statement_begin__ = 129;
                 lp_accum__.add(bernoulli_log<propto__>(get_base1(miss_m,pep2,"miss_m",1), get_base1(pmiss_m,pep2,"pmiss_m",1)));
-                current_statement_begin__ = 128;
+                current_statement_begin__ = 130;
                 lp_accum__.add(normal_log<propto__>(get_base1(y_m_latent,pep2,"y_m_latent",1), 0, 1));
             }
 
@@ -3057,7 +3083,7 @@ public:
         (void) DUMMY_VAR__;  // suppress unused var warning
 
         try {
-            current_statement_begin__ = 63;
+            current_statement_begin__ = 65;
             validate_non_negative_index("U", "np", np);
             validate_non_negative_index("U", "npred", npred);
             matrix_d U(static_cast<Eigen::VectorXd::Index>(np),static_cast<Eigen::VectorXd::Index>(npred));
@@ -3065,7 +3091,7 @@ public:
 
             stan::math::initialize(U, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(U,DUMMY_VAR__);
-            current_statement_begin__ = 64;
+            current_statement_begin__ = 66;
             validate_non_negative_index("beta2", "nsid", nsid);
             validate_non_negative_index("beta2", "npred_sub", npred_sub);
             matrix_d beta2(static_cast<Eigen::VectorXd::Index>(nsid),static_cast<Eigen::VectorXd::Index>(npred_sub));
@@ -3073,116 +3099,116 @@ public:
 
             stan::math::initialize(beta2, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(beta2,DUMMY_VAR__);
-            current_statement_begin__ = 65;
+            current_statement_begin__ = 67;
             validate_non_negative_index("alpha", "npred_miss", npred_miss);
             vector_d alpha(static_cast<Eigen::VectorXd::Index>(npred_miss));
             (void) alpha;  // dummy to suppress unused var warning
 
             stan::math::initialize(alpha, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(alpha,DUMMY_VAR__);
-            current_statement_begin__ = 67;
+            current_statement_begin__ = 69;
             validate_non_negative_index("mu", "nobs", nobs);
             vector<double> mu(nobs, 0.0);
             stan::math::initialize(mu, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mu,DUMMY_VAR__);
-            current_statement_begin__ = 68;
+            current_statement_begin__ = 70;
             validate_non_negative_index("mu_m", "nmiss", nmiss);
             vector<double> mu_m(nmiss, 0.0);
             stan::math::initialize(mu_m, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(mu_m,DUMMY_VAR__);
-            current_statement_begin__ = 69;
+            current_statement_begin__ = 71;
             validate_non_negative_index("y_m", "nmiss", nmiss);
             vector<double> y_m(nmiss, 0.0);
             stan::math::initialize(y_m, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(y_m,DUMMY_VAR__);
-            current_statement_begin__ = 71;
+            current_statement_begin__ = 73;
             validate_non_negative_index("pmiss", "nobs", nobs);
             vector<double> pmiss(nobs, 0.0);
             stan::math::initialize(pmiss, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(pmiss,DUMMY_VAR__);
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 74;
             validate_non_negative_index("pmiss_m", "nmiss", nmiss);
             vector<double> pmiss_m(nmiss, 0.0);
             stan::math::initialize(pmiss_m, std::numeric_limits<double>::quiet_NaN());
             stan::math::fill(pmiss_m,DUMMY_VAR__);
 
 
-            current_statement_begin__ = 74;
+            current_statement_begin__ = 76;
             for (int sub = 1; sub <= nsid; ++sub) {
-                current_statement_begin__ = 75;
+                current_statement_begin__ = 77;
                 stan::math::assign(get_base1_lhs(beta2,sub,"beta2",1), add(get_base1(beta2_mu,sub,"beta2_mu",1),dot_product(beta2_theta,get_base1(beta2_latent,sub,"beta2_latent",1))));
             }
-            current_statement_begin__ = 77;
+            current_statement_begin__ = 79;
             for (int prot = 1; prot <= np; ++prot) {
-                current_statement_begin__ = 78;
+                current_statement_begin__ = 80;
                 stan::math::assign(get_base1_lhs(U,prot,"U",1), add(g,multiply(get_base1(U_latent,prot,"U_latent",1),pVAR)));
             }
-            current_statement_begin__ = 80;
-            stan::math::assign(alpha, add(alpha_mu,dot_product(alpha_theta,alpha_latent)));
             current_statement_begin__ = 82;
+            stan::math::assign(alpha, add(add(alpha_mu,alpha_prior),dot_product(alpha_theta,alpha_latent)));
+            current_statement_begin__ = 84;
             for (int pep = 1; pep <= nobs; ++pep) {
 
-                current_statement_begin__ = 83;
+                current_statement_begin__ = 85;
                 stan::math::assign(get_base1_lhs(mu,pep,"mu",1), (dot_product(get_base1(pred_sub,pep,"pred_sub",1),get_base1(beta2,get_base1(sid,pep,"sid",1),"beta2",1)) + dot_product(get_base1(pred,pep,"pred",1),get_base1(U,get_base1(pid,pep,"pid",1),"U",1))));
-                current_statement_begin__ = 84;
+                current_statement_begin__ = 86;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 84;
+                    current_statement_begin__ = 86;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit((dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1)) + (alpha_response * get_base1(mu,pep,"mu",1)))));
                 } else {
-                    current_statement_begin__ = 85;
+                    current_statement_begin__ = 87;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep,"pred_miss",1))));
                 }
-                current_statement_begin__ = 86;
+                current_statement_begin__ = 88;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),0))) {
-                    current_statement_begin__ = 86;
+                    current_statement_begin__ = 88;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.001);
                 }
-                current_statement_begin__ = 87;
+                current_statement_begin__ = 89;
                 if (as_bool(logical_eq(get_base1(pmiss,pep,"pmiss",1),1))) {
-                    current_statement_begin__ = 87;
+                    current_statement_begin__ = 89;
                     stan::math::assign(get_base1_lhs(pmiss,pep,"pmiss",1), 0.999);
                 }
             }
-            current_statement_begin__ = 90;
+            current_statement_begin__ = 92;
             for (int pep2 = 1; pep2 <= nmiss; ++pep2) {
 
-                current_statement_begin__ = 91;
-                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
-                current_statement_begin__ = 92;
-                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
                 current_statement_begin__ = 93;
+                stan::math::assign(get_base1_lhs(mu_m,pep2,"mu_m",1), (dot_product(get_base1(beta2,get_base1(sid_m,pep2,"sid_m",1),"beta2",1),get_base1(pred_sub_m,pep2,"pred_sub_m",1)) + dot_product(get_base1(pred_m,pep2,"pred_m",1),get_base1(U,get_base1(pid_m,pep2,"pid_m",1),"U",1))));
+                current_statement_begin__ = 94;
+                stan::math::assign(get_base1_lhs(y_m,pep2,"y_m",1), (get_base1(mu_m,pep2,"mu_m",1) + (get_base1(y_m_latent,pep2,"y_m_latent",1) * ita)));
+                current_statement_begin__ = 95;
                 if (as_bool(logical_eq(respond_dep,1))) {
-                    current_statement_begin__ = 93;
+                    current_statement_begin__ = 95;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit((dot_product(alpha,get_base1(pred_miss_m,pep2,"pred_miss_m",1)) + (alpha_response * get_base1(mu_m,pep2,"mu_m",1)))));
                 } else {
-                    current_statement_begin__ = 94;
+                    current_statement_begin__ = 96;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), inv_logit(dot_product(alpha,get_base1(pred_miss,pep2,"pred_miss",1))));
                 }
-                current_statement_begin__ = 96;
+                current_statement_begin__ = 98;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),0))) {
-                    current_statement_begin__ = 96;
+                    current_statement_begin__ = 98;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.001);
                 }
-                current_statement_begin__ = 97;
+                current_statement_begin__ = 99;
                 if (as_bool(logical_eq(get_base1(pmiss_m,pep2,"pmiss_m",1),1))) {
-                    current_statement_begin__ = 97;
+                    current_statement_begin__ = 99;
                     stan::math::assign(get_base1_lhs(pmiss_m,pep2,"pmiss_m",1), 0.999);
                 }
             }
 
             // validate transformed parameters
-            current_statement_begin__ = 63;
-            current_statement_begin__ = 64;
             current_statement_begin__ = 65;
+            current_statement_begin__ = 66;
             current_statement_begin__ = 67;
-            current_statement_begin__ = 68;
             current_statement_begin__ = 69;
+            current_statement_begin__ = 70;
             current_statement_begin__ = 71;
+            current_statement_begin__ = 73;
             for (int k0__ = 0; k0__ < nobs; ++k0__) {
                 check_greater_or_equal(function__,"pmiss[k0__]",pmiss[k0__],0);
                 check_less_or_equal(function__,"pmiss[k0__]",pmiss[k0__],1);
             }
-            current_statement_begin__ = 72;
+            current_statement_begin__ = 74;
             for (int k0__ = 0; k0__ < nmiss; ++k0__) {
                 check_greater_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],0);
                 check_less_or_equal(function__,"pmiss_m[k0__]",pmiss_m[k0__],1);
