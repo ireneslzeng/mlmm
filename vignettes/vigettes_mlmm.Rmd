@@ -1,7 +1,7 @@
 ---
 title: "Vignette for mlmm package"
 author: "Irene SL Zeng"
-date: "15 March 2018"
+date: "1st April 2018"
 output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{Vignette for mlmm package}
@@ -40,35 +40,45 @@ response_censorlim=0.002;
 ##Set the path and fit the regression model using mlmc()
 The formula for subject will need to have at least one variable. For example, to include subject-id for subject and this will provide the mean value for each subject. 
 ```{r example for using function mlmc() and mlmm(),eval=FALSE}
-model1=mlmc(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_censor=censor~1,formula_subject=~sid,pdata=pdata,response_censorlim=0.002,
-respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
-iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
-
+#use the sampling to have 1000 posteror samples
 model2=mlmc(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
 formula_censor=censor~1,formula_subject=~sid,pdata=pdata,response_censorlim=0.002,
 respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
 iterno=1000,chains=2,savefile=TRUE,usefit=TRUE)
 
-model3=mlmc(formula_completed=var1~var2,formula_missing=miss~var2,
-formula_censor=censor~1,formula_subject=~sid+treatment,pdata=pdata,response_censorlim=0.002,
-respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
+#use an informative prior for alpha_prior which has a length of (1+number of predictors)
+model1=mlmc(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
+formula_censor=censor~1,formula_subject=~sid,pdata=pdata,response_censorlim=0.002,
+respond_dep_missing=TRUE,pidname="geneid",sidname="sid",alpha_prior=c(0,0.001),
 iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
 
+
+#use an informative prior for precision matrix for first level preditors
+prec_example=matrix(c(0.01,0.001,0.001,0.01),nrow=2,ncol=2)
+model3=mlmc(formula_completed=var1~var2,formula_missing=miss~var2,
+formula_censor=censor~1,formula_subject=~sid+treatment,pdata=pdata,response_censorlim=0.002,
+respond_dep_missing=TRUE,pidname="geneid",sidname="sid",prec_prior=prec_example,
+iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
+
+#use the stan fit to have 1000 posterior samples
 model3b=mlmc(formula_completed=var1~var2,formula_missing=miss~var2,
 formula_censor=censor~1,formula_subject=~sid+treatment,pdata=pdata,response_censorlim=0.002,
-respond_dep_missing=TRUE,pidname="geneid",sidname="sid",
+respond_dep_missing=TRUE,pidname="geneid",sidname="sid",prec_prior=prec_example,
 iterno=1000,chains=2,savefile=TRUE,usefit=TRUE)
 
 ##using mlmm()function. Formular for completed data, subject and missingness requires at least one variable
 ##r example for using function mlmm()
-model4=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_subject=~sid,pdata=pdata,respond_dep_missing=FALSE,pidname="geneid",sidname="sid",
-iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
 
 model5=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
 formula_subject=~sid,pdata=pdata,respond_dep_missing=FALSE,pidname="geneid",sidname="sid",
 iterno=1000,chains=2,savefile=TRUE,usefit=TRUE)
+
+#assign
+prec_example=matrix(c(0.01,0.001,0.001,0.001,0.01,0.001,0.001,0.001,0.01),nrow=3,ncol=3)
+model4=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
+formula_subject=~sid,pdata=pdata,respond_dep_missing=FALSE,pidname="geneid",sidname="sid",
+alpha_prior=c(0,0.001),prec_prior=prec_example,
+iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
 
 model5=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
 formula_subject=~sid+treatment,pdata=pdata,respond_dep_missing=FALSE,pidname="geneid",sidname="sid",
