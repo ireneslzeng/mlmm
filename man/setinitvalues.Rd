@@ -5,37 +5,83 @@
 \title{RSTAN code for mlmc() function}
 \usage{
 setinitvalues(npred = npred, np = np, npred_miss = npred_miss,
-  npred_sub = npred_sub, nmiss = nmiss, nsid = nsid)
+  npred_sub = npred_sub, nmiss = nmiss, nsid = nsid,
+  censor_lim_upp = 0.008, ita_a = 1, ita_b = 1/10, g_mu = 0,
+  g_sig = 1, alpha_mu_u = 0, alpha_mu_s = 1, alpha_theta_a = 1,
+  alpha_theta_b = 1, beta2_theta_a = 1, beta2_theta_b = 1)
 }
 \arguments{
-\item{npred}{number of predictors for the completed data regression model}
+\item{npred}{number of predictors for the regression model}
 
-\item{np}{number of second level unit i.e. proteins/genes}
+\item{np}{number of protein/metabolite units comprised of the
+response values (i.e. which
+represents peptides' ion-intensities used to construct
+protein/metabolite's abundance)}
 
 \item{npred_miss}{number of predictors for missingness}
 
-\item{npred_sub}{number of predictors for subjects}
+\item{npred_sub}{number of predictors for the second level units
+such as subjects}
 
 \item{nmiss}{number of observations with missing responses values}
 
-\item{nsid}{number of subjects}
+\item{nsid}{number of second level units i.e. subjects}
+
+\item{censor_lim_upp}{upper-limit of censored value of responses}
+
+\item{ita_a}{shape parameter for gamma distributed prior-ita(std of
+response value)}
+
+\item{ita_b}{rate parameter for gamma distributed prior-ita}
+
+\item{g_mu}{mean of normal distributed location parameter g for 
+re-parameterising U (regression coefficient of model in completed data)}
+
+\item{g_sig}{std of normal distributed location parameter g}
+
+\item{alpha_mu_u}{mean of normal distributed location parameter alpha_mu for 
+re-parameterising alpha (regression coefficient of logistic
+regression model for missing prob)}
+
+\item{alpha_mu_s}{std of normal distributed location parameter alpha_mu}
+
+\item{alpha_theta_a}{shape parameter of gamma distributed dispersion parameter
+alpha_theta for re-parameterising alpha}
+
+\item{alpha_theta_b}{rate parameter of gamma distributed alpha_theta}
+
+\item{beta2_theta_a}{shape parameter of gamma distributed beta2_theta
+units,i.e. subject)}
+
+\item{beta2_theta_b}{rate parameter of gamma distributed dispersion
+parameter beta2_theta}
 }
 \value{
-u_mean initial value of second level unit mean i.e. mean of protein abundance for protein 1
+pVAR precision matrix for predictors in completed data model
 
-u_std initial value of second level unit standard deviation i.e. std of protein abundance for protein 1
+U_latent standardized multinormal distributed latern
+variable to re-parameterise regression coefficient U
 
-beta2_mean initial mean value for sampling unit ,i.e. subject
+g location parameter to re-parameterise U
 
-beta_Std inital std for sampling unit
+alpha_mu mean value for alpha(regression coefficient of
+model for missing probability)
 
-beta2_theta_shape inital shape value for gamma distributed beta_std
+alpha_latent standardized normal distributed latent variable
+to re-parameterise alpha
 
-beta2_theta_rate inital rate value for gamma distributed beta_std
+beta2_latent standardized multivariate normal distributed
+latent variable to re-parameterising beta2
+
+beta2_mu mean of the multivariate normal distributed beta2
+
+y_m_latent standardized normal distributed latent variable
+to re-parameterise response variable
 }
 \description{
-Generate initial value for parameters
+Generate initial values for parameters
 }
 \examples{
-testexmp=setinitvalues(npred=2,np=3,npred_miss=3,npred_sub=2,nmiss=10,nsid=30)
+testexmp=setinitvalues(npred=2,np=3,npred_miss=3,npred_sub=2,nmiss=10,
+nsid=30)
 }

@@ -7,7 +7,7 @@
 mlmm(formula_completed, formula_missing, formula_subject, pdata,
   respond_dep_missing = TRUE, pidname, sidname, prec_prior = NULL,
   alpha_prior = NULL, iterno = 100, chains = 3, thin = 1, seed = 125,
-  algorithm = "NUTS", warmup = floor(iterno/2), adapt_delta_value = 0.85,
+  algorithm = "NUTS", warmup = floor(iterno/2), adapt_delta_value = 0.9,
   savefile = FALSE, usefit = FALSE)
 }
 \arguments{
@@ -18,20 +18,20 @@ define the first level response and its explanatory variables.}
 \item{formula_missing}{The logistic regression model formula. 
 It has the same formula as formula_completed.}
 
-\item{formula_subject}{The second level formula in the multilevel model 
-which is used to define second level unit such as subject and explanatory
-variables.}
+\item{formula_subject}{The second level formula in the multilevel
+model 'which is used to define second level unit such as subject and
+explanatory 'variables.}
 
-\item{pdata}{The dataset contains response and predictors in a long format. 
-Response is a vector with an indictor variable to define the corresponding 
-unit. The data needs to have the following rudimental variables:
-the indicator variable for first level response, 
-the indicator variable for second level unit such as subject or a sampling 
-unit, 
-an indicator for missingness and indictor of censoring.  
-Missingness and censor are two different classification, there should not 
-have any overlap between missingness and censored. 
-Data structure can be referenced from the example and reference papers.}
+\item{pdata}{The dataset contains response and predictors in a long
+format.  Response is a vector with an indictor variable to define
+the corresponding unit. The data needs to have the following
+rudimental variables: the indicator variable for first level
+response, the indicator variable for second level unit such as
+subject or a sampling unit, an indicator for missingness and
+indictor of censoring.  Missingness and censor are two different
+classification, there should not have any overlap between
+missingness and censored.  Data structure can be referenced from the
+example and reference papers.}
 
 \item{respond_dep_missing}{An indicator of whether response value is 
 missing-dependant.}
@@ -42,23 +42,25 @@ i.e. protein name or gene name}
 \item{sidname}{Vriable name to define the subject unit,
 i.e. patient id or sampling id}
 
-\item{prec_prior}{prior precision matrix of the explanatory variables 
-at the first level unit in the multilevel model, for example, the variables 
-to predict ion intensity. Its dimension will be q x q, where q is the number
-of explanatory variables at the right-hand side of formula_completed. The 
-default is a matrix with diagonal value of 0.01 and off-diagonal value of 
-0.005.}
+\item{prec_prior}{prior precision matrix of the explanatory
+variables at the first level unit in the multilevel model, for
+example, the variables to predict ion intensity. Its dimension will
+be q x q, where q is the number of explanatory variables at the
+right-hand side of formula_completed. The default is a matrix with
+diagonal value of 0.01 and off-diagonal value of 0.005.}
 
-\item{alpha_prior}{prior for coefficients of predictors to missing probability
-in the logistic regression. Its length will be equal to the number of variables
-at the right-hand side of the formula_missing. Default is a vector of
-zeros.}
+\item{alpha_prior}{prior for coefficients of predictors to missing
+probability in the logistic regression. Its length will be equal to
+the number of variables at the right-hand side of the
+formula_missing.  Default is a vector of zeros.}
 
 \item{iterno}{Number of iterations for the posterior samplings}
 
-\item{chains}{rstan() parameter to define number of chains of posterior samplings}
+\item{chains}{rstan() parameter to define number of chains of
+posterior samplings.}
 
-\item{thin}{rstan() parameter to define the frequency of iterations saved}
+\item{thin}{rstan() parameter to define the frequency of iterations
+saved.}
 
 \item{seed}{random seed for rstan() function}
 
@@ -67,28 +69,33 @@ Fixed_param).}
 
 \item{warmup}{Number of iterations for burn-out in stan.}
 
-\item{adapt_delta_value}{Adaptive delta value is an adaptation parameters for sampling
-algorithms,default is 0.85, value between 0-1.}
+\item{adapt_delta_value}{Adaptive delta value is an adaptation
+parameters 'for sampling algorithms,default is 0.85, value between
+0-1.}
 
-\item{savefile}{A logical variable to indicate if the sampling files are to be saved.}
+\item{savefile}{A logical variable to indicate if the sampling files
+are to be saved.}
 
-\item{usefit}{A logical variable to indicate if the model use the existing fit.}
+\item{usefit}{A logical variable to indicate if the model use the existing 
+fit.}
 }
 \value{
-Return of the function is the result fitted by stan(). It will have the summarized
-parameters from all chains and summary results for each chain.
+Return of the function is the result fitted by stan(). It
+will have 'the summarized parameters from all chains and summary
+results for each 'chain.
 Plot() function will return the visualization of the mean and parameters.
 }
 \description{
-mlmm() handles Bayesian multilevel model with response variable
-that has missing values that depends on the response value itself. 
-Apart from the response value, the missingness is also known to 
-associate with the other variables.  The method is created for analysing 
-mass-spectrometry data when it has abundance-dependant missing and censored
-values, and there are prior information available for the associations between 
-the probability of missing and the known variables. The function mlmm is 
-written for response variable has no censored values while mlmc function 
-include imputing censored values.
+mlmm() handles Bayesian multilevel model with response
+variable 'that has missing values that depends on the response value
+itself.  'Apart from the response value, the missingness is also
+known to 'associate with the other variables.  The method is created
+for analysing 'mass-spectrometry data when it has abundance-dependant
+missing and censored 'values, and there are prior information
+available for the associations 'between the probability of missing
+and the known variables.  'The function mlmm is written for response
+variable has no censored values 'while mlmc function include imputing
+censored values.
 }
 \examples{
 #\dontrun{
@@ -115,6 +122,7 @@ formula_censor=censor~1
 formula_subject=~treatment
 model3=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
 formula_subject=~treatment,pdata=pdata,respond_dep_missing=TRUE,
-pidname="geneid",sidname="sid",iterno=10,chains=2,usefit=TRUE,savefile=FALSE)
+pidname="geneid",sidname="sid",iterno=10,chains=2,usefit=TRUE,
+savefile=FALSE)
 #}
 }

@@ -4,8 +4,10 @@
 \name{pdata}
 \alias{pdata}
 \title{pdata for examples and testthat()
-pdata has 7 variables and var1 is the response variable, var2 is a continuous explanatory variable
-treatment is another explanatory variable, miss and censor are indicator for missing and censored 
+pdata has 7 variables and var1 is the response variable, var2 is a
+continuous explanatory variable,
+treatment is another explanatory variable, miss and censor are
+indicator for missing and censored,
 geneid and sid represents gene id and subject id respectively.}
 \format{An object of class \code{data.frame} with 100 rows and 7 columns.}
 \usage{
@@ -13,8 +15,10 @@ data(pdata)
 }
 \description{
 pdata for examples and testthat()
-pdata has 7 variables and var1 is the response variable, var2 is a continuous explanatory variable
-treatment is another explanatory variable, miss and censor are indicator for missing and censored 
+pdata has 7 variables and var1 is the response variable, var2 is a
+continuous explanatory variable,
+treatment is another explanatory variable, miss and censor are
+indicator for missing and censored,
 geneid and sid represents gene id and subject id respectively.
 }
 \keyword{datasets}

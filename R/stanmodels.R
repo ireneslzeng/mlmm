@@ -18,11 +18,11 @@
 
 #This file is only intended to be used during the installation process
 #nocov start
-MODELS_HOME <- "exec"
+MODELS_HOME = "exec"
 if (!file.exists(MODELS_HOME)) MODELS_HOME = sub("R$", "exec", getwd())
 
 stan_files = dir(MODELS_HOME, pattern = "stan$", full.names = TRUE)
-stanmodels = sapply(stan_files, function(f) {
+stanmodels = lapply(stan_files, function(f) {
 model_cppname = sub("\\.stan$", "", basename(f))
 isystem = system.file("chunks",    
 package = methods::getPackageName(environment(), FALSE))
@@ -38,6 +38,6 @@ if (!file.exists(file.path(isystem, "common_functions.stan")))
     mk_cppmodule = function(x) get(paste0("model_", model_cppname)))))
     }
 )
-names(stanmodels) <- sub("\\.stan$", "", basename(names(stanmodels)))
+names(stanmodels) = sub("\\.stan$", "", basename(stan_files))
 rm(MODELS_HOME)
 # nocov end

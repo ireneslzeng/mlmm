@@ -1,8 +1,7 @@
 Package: mlmm
 Type: Package
 Title: Multilevel Model for Multivariate Responses with Missing Values
-Version: 0.99.2
-Date: 2018-1-2
+Version: 0.99.3
 Authors@R: c(person("Irene SL","Zeng",email="i.zeng@auckland.ac.nz", role = c("aut", "cre")),person("Thomas","Lumley",email="t.lumley@auckland.ac.nz",role="ctb"))
 Maintainer: Irene SL Zeng <i.zeng@auckland.ac.nz>
 Description: To conduct Bayesian inference regression for responses with
@@ -13,7 +12,7 @@ Description: To conduct Bayesian inference regression for responses with
     two main functions to handle not-missing-at-random missing responses and left-
     censored with not-missing-at random responses. The purpose is to provide a
     similar format as the other R regression functions but using 'Stan' models.
-License: GPL (>=2)
+License: GPL-2
 Depends:
     R (>= 3.5.0),
     Rcpp (>= 0.12.12),
@@ -31,8 +30,10 @@ LinkingTo: StanHeaders (>= 2.16.0.1), rstan (>= 2.16.2), BH (>= 1.65.0.1), Rcpp
 Suggests:
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    roxygen2 (>= 5.0.0) 
 URL: https://doi.org/10.1101/153049
 RoxygenNote: 6.0.1
 biocViews: Bayesian,CopyNumberVariation,Classification,Regression,MassSpectrometry,Proteomics,Software
+bugReport: https://github.com/ireneslzeng/mlmm/issues
 VignetteBuilder: knitr
