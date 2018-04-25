@@ -1,7 +1,7 @@
 --- 
 title: "Introduction for mlmm package"
 output: 
-      Rmarkdown::pdf_document:
+      rmarkdown::pdf_document:
       toc: true
       toc_float: true
       toc_dep: 3
