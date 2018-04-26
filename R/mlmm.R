@@ -115,44 +115,39 @@
 #'#}
 #'@export
 
-mlmm=function(
-formula_completed,formula_missing,
-formula_subject,
-pdata,respond_dep_missing=TRUE,
-pidname,sidname,
-prec_prior=NULL,alpha_prior=NULL,
-iterno=100,chains=3,thin=1,seed=125,
-algorithm="NUTS",
-warmup=floor(iterno/2),adapt_delta_value=0.90,
-savefile=FALSE,usefit=FALSE
-)
-{
-    current.na.action = options('na.action')
-    options(na.action='na.pass')
+mlmm=function(formula_completed,formula_missing,
+    formula_subject,pdata,
+    respond_dep_missing=TRUE,
+    pidname,sidname,
+    prec_prior=NULL,alpha_prior=NULL,
+    iterno=100,chains=3,thin=1,seed=125,
+    algorithm="NUTS", warmup=floor(iterno/2),
+    adapt_delta_value=0.90,
+    savefile=FALSE,usefit=FALSE )
+
+{current.na.action=options('na.action');options(na.action='na.pass')
+
     t=stats::terms(formula_completed)
     mf=stats::model.frame(t,pdata,na.action='na.pass')
-    mm=stats::model.matrix(mf,pdata)
-    t2=stats::terms(formula_missing)
+    mm=stats::model.matrix(mf,pdata);t2=stats::terms(formula_missing)
     mf2=stats::model.frame(t2,pdata,na.action='na.pass')
-    mm2=stats::model.matrix(mf2,pdata)
-    missing=stats::model.response(mf2)
-    if (!is.null(formula_subject))
-    {tt3=stats::terms(formula_subject)
+    mm2=stats::model.matrix(mf2,pdata);missing=stats::model.response(mf2)
+
+    if (!is.null(formula_subject)) {tt3=stats::terms(formula_subject)
     mf3=stats::model.frame(tt3,pdata,na.action='na.pass')
     mm3=stats::model.matrix(mf3,pdata)}
     y_all=stats::model.response(mf)
-    options('na.action' = current.na.action$na.action)
-    #######################Prepare data
+
+options('na.action' = current.na.action$na.action)
+
+#######################Prepare data;
     ns=length(y_all)
     nmiss=table(missing)[2]
     nobs=ns-nmiss
     datamiss=subset(pdata,(missing==1))
     dataobs=subset(pdata,(missing!=1))
-    npred=dim(mm)[2]
-    npred_miss=dim(mm2)[2]
-    npred_sub=dim(mm3)[2]
-    sid=dataobs[,sidname]
-    sid_m=datamiss[,sidname]
+    npred=dim(mm)[2];npred_miss=dim(mm2)[2];npred_sub=dim(mm3)[2]
+    sid=dataobs[,sidname];sid_m=datamiss[,sidname]
     nsid=length(table(pdata[,sidname]))
     pid=dataobs[,pidname]
     pid_m=datamiss[,pidname]
@@ -166,25 +161,26 @@ savefile=FALSE,usefit=FALSE
     miss_m=datamiss[,colnames(mf2)[1]]
     miss_obs=dataobs[,colnames(mf2)[1]]
     if (respond_dep_missing) respond_dep=1 else respond_dep=0
-    #data for prior
+
+#data for prior;
     R=as.matrix(Matrix::Diagonal(npred))
-    #Assign default prior for precision matrix 
-    #of explnatory variables at the first leve
-    if (is.null(prec_prior)){
-    prec_prior=matrix(nrow=npred,ncol=npred)
-    for ( i in seq_len(npred))
-    for (j in seq_len(npred))
-    {if (i==j) prec_prior[i,j]=0.1 else prec_prior[i,j]=0.005}
-    }
+#Assign default prior for precision matrix
+#of explanatory variables at the first leve;
+    if (is.null(prec_prior)){ prec_prior=matrix(nrow=npred,ncol=npred)
+    for (i in seq_len(npred))
+        for (j in seq_len(npred)) {
+        if (i==j) prec_prior[i,j]=0.1 else prec_prior[i,j]=0.005}
+        }
     mn=rep(0,npred)
     Sigma_sd=rep(10,npred)
-    #Assign default prior value for assoication of missing prob and variables
+#Assign default prior value for assoication of missing prob and variables
+
     if (is.null(alpha_prior)) alpha_prior=rep(1,npred_miss)
     
     prstan_data=list(
     nobs=nobs,nmiss=nmiss,nsid=nsid,np=np,npred=npred,
     npred_miss=npred_miss,npred_sub=npred_sub,
-    respond_dep=respond_dep, y=y_all[(missing!=1)],
+    respond_dep=respond_dep,y=y_all[(missing!=1)],
     sid=sid,pid=pid,pred=pred,pred_miss=pred_miss,pred_sub=pred_sub,
     miss_obs=miss_obs,
     sid_m=sid_m,pid_m=pid_m,pred_m=pred_m,

@@ -1,22 +1,15 @@
---- 
-title: "Introduction for mlmm package"
+---
+title: "Introduction of mlmm"
+author: "Irene SL Zeng"
+package: mlmm
 output: 
-      rmarkdown::pdf_document:
-      toc: true
-      toc_float: true
-      toc_dep: 3
-      number_section: true 
-vignette: >
-    %\VignetteIndexEntry{mlmm}
-    %\VignetteEngine{knitr::rmarkdown}
-    %\VignetteEncoding{UTF-8}
----
+BiocStyle::pdf_document:
+toc: true
 
----
-title: "Introduction for mlmm package"
-author: Irene SL Zeng
-date: April 1, 2018
-output: pdf_document
+vignette: >
+%\VignetteIndexEntry{"Introduction of mlmm"}
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteEncoding{UTF-8}  
 ---
 
 ```{r setup, include=FALSE}
@@ -24,8 +17,9 @@ library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#1. Introduction 
-##Abstract 
+#1. Introduction
+
+##Summary  
 High throughput mass-spectrometry clinical proteomics studies curate
 abundance data with hierarchical structure. The non-random missingness
 of the measurements from a vast amount of information also adds
