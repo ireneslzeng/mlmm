@@ -3,13 +3,13 @@ title: "Introduction of mlmm"
 author: "Irene SL Zeng"
 package: mlmm
 output: 
-BiocStyle::pdf_document:
-toc: true
+    BiocStyle::html_document:
+    toc: true
 
 vignette: >
-%\VignetteIndexEntry{"Introduction of mlmm"}
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteEncoding{UTF-8}  
+    %\VignetteIndexEntry{Introduction of mlmm}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}  
 ---
 
 ```{r setup, include=FALSE}
@@ -17,7 +17,7 @@ library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#1. Introduction
+#Introduction
 
 ##Summary  
 High throughput mass-spectrometry clinical proteomics studies curate
@@ -94,7 +94,7 @@ samplings using HMC.
 
 
 
-#2. The mlmm R package 
+#The mlmm R package 
 
 The functions included in the pacakge "mlmm" are: 
 
@@ -110,7 +110,7 @@ as a protein identification. Other explanatory variables can be
 experimental variables and clinical design variables.  The protein
 identification is an ID to link the peptides to its parent protein.
 The probability of missing, missing and censored values of the
-respondent Variable are estimated in the algorithm through a logistic
+respondent variable are estimated in the algorithm through a logistic
 regression and a truncated normal distribution for the censored
 values. The probability of missing can be fitted via explanatory
 variables such as the abundance and mass-to-charge ratio of the
@@ -126,20 +126,20 @@ model. The input variables in this function are similar to those in
 mlmm() but without terms for censored missing.
 
 
-#3. Installation
+#Installation
 There are two ways to install the package. 
-3.1. Use bioconductor as installation source
+##Use bioconductor as installation source
 ```{r installation 1,eval=FALSE}
 source("https://bioconductor.org/biocLite.R")
 BiocInstaller::biocLite("mlmm")
 library(mlmm)
 ```
-3.2. Use github as installation source
+##Use github as installation source
 ```{r installation 2,eval=FALSE}
 devtools::install_github("https://github.com/ireneslzeng/mlmm")
 library(mlmm)
 ```
-#4. Instructions and Examples of using main functions for regression, 
+#Instructions and Examples of using main functions for regression, 
 plots and diagnostics 
 The following section provides examples using a simulated dataset: pdata.
 The examples include:
@@ -159,7 +159,7 @@ mutually exclusive.
 3.The number of iterations are better to set to be >1000. 
 The default burn-in is half of the set iterations. 
 
-##4.1 Read data and check data 
+##Read data and check data 
 ```{r read data,eval=TRUE}
 data(pdata,package="mlmm")
 pdata[1:2,]
@@ -200,9 +200,9 @@ The formula for subject will need to have at least one variable.  For
 example, to include subject-id for subject and this will provide the
 mean value for each subject.
 
-##4.2 R examples for using function mlmc() and mlmm()
+##R examples for using function mlmc() and mlmm()
 ###R examples for mlmc()
-###Example 1a. Set usefit=TRUE to call complied codes
+####Example 1a. Set usefit=TRUE to call complied codes
 When set usefit=TRUE, we can have posterior samples based on the
 Previous compiled codes.
 
@@ -214,7 +214,7 @@ response_censorlim=0.002,respond_dep_missing=TRUE,
 pidname="geneid",sidname="sid",
 iterno=100,chains=2,savefile=TRUE,usefit=TRUE)
 ```
-###Example 1b-1c. Use a provided informative priors
+####Example 1b-1c. Use a provided informative priors
 Example 1b is to set prior of alpha.
 alpha_prior is a prior for coefficients of intercept and var2 
 in the logistic regression to predict missing probability. 
@@ -253,16 +253,16 @@ iterno=1000,chains=2,savefile=TRUE,usefit=TRUE)
 
 ###R examples for mlmm()
 Formular for completed data, subject and missingness requires at
-least one variable
+least one variable.
 
-###Example 2a. Set usefit=TRUE to call the complied code
+####Example 2a. Set usefit=TRUE to call the complied code
 ```{r example 2a,eval=TRUE}
 model5=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
 formula_subject=~sid,pdata=pdata,
 respond_dep_missing=FALSE,pidname="geneid",sidname="sid",
 iterno=100,chains=2,savefile=TRUE,usefit=TRUE)
 ```
-###Example 2b. Provide informative priors
+####Example 2b-2d. Provide informative priors
 The user define priors includes:  
 a) prec_prior : the precision matrix of first level parameter var2 
 and treatment;
@@ -295,7 +295,7 @@ sidname="sid",iterno=1000,chains=2,savefile=TRUE,usefit=TRUE)
 ```
 
 
-##4.3 How to make plots of the parameters and to diagnose convergence
+##How to make plots of the parameters and to diagnose convergence
 
 From the printout, we can see that, if the estimate converges, 
 it will have high number of efficient samples and the r value closes to 1 
@@ -304,7 +304,7 @@ The following codes are to
 and, 
 2) plot the trajectory including those values generated from burn-in iterations.
 
-###4.3.1) plot posterior parameters
+###plot posterior parameters
 ```{r plot one,echo=TRUE,eval=TRUE}
 summaryreader=read.csv(file=file.path(getwd(),"outsummary.csv"),header=TRUE,
 sep=",",skip=0)
@@ -327,7 +327,7 @@ legend(0.90,qU[names(qU)=="97.5%"],"97.5%",cex=0.8,bty="n")
 qU
 ```
 
-###4.3.2) plot trajectory of the posterior samples
+###plot trajectory of the posterior samples
 ```{r plot two,echo=TRUE,eval=TRUE}
 sample1reader=read.csv(file=file.path(getwd(),"samples_1.csv"),header=TRUE,
 sep=",",skip=25)
@@ -345,13 +345,13 @@ lines(trajectory,sample1reader$U.1.1)
 lines(trajectory,sample2reader$U.1.1,col="red")
 ```
 
-#5. sessionInfo
+#sessionInfo
 All of the outputs in this vignette are produced under the following conditions:
 ```{r sessionInfo,echo=TRUE,eval=TRUE}
 sessionInfo()
 ```
 
-#6. References
+#References
 
 1. Hoffman, M.D. and Gelman, A. The No-U-Turn Sampler: Adaptively
 Setting Path Lengths in Hamiltonian Monte Carlo. Journal of machine
@@ -372,6 +372,4 @@ Analysis in Proteomics New York: Humana Press: Springer; 2015.
 6. Zeng, I.S., Lumley, T., Ruggiero, K. and Middleditch, M. A Bayesian
 approach to multivariate and multilevel modelling with non-random
 missingness for hierarchical clinical proteomics data. In:
-https://www.biorxiv.org/content/early/2017/06/21/153049, editor.;
-2017.
-
+https://www.biorxiv.org/content/early/2017/06/21/153049; 2017.
