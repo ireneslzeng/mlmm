@@ -14,7 +14,8 @@ vignette: >
 
 ```{r setup, include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(echo = TRUE)
+library(rmarkdown)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 #Introduction
@@ -151,7 +152,7 @@ When set up the formulas and parameters for using the mlmm()
 and mlmc() functions, some instructions are as follows: 
 1.The formula_subject will need to have at least one variable.  For
 example, to include subject-id for subject and this will provide the
-           mean value for each subject.
+mean value for each subject.
 2.The missing and censor values in the response variable require
 Different indicator for each, the missing and censor indictor is 
 mutually exclusive. 
@@ -363,7 +364,7 @@ data. J. Am. Statist. Assoc. 1993;88:125-134.
 Rubin, D.B. Statistical Analysis with Missing Data. 1987.  Neal,
 R.M. MCMC using Hamiltonian dynamics. In: S. Brooks, e.a., editor,
 Handbook of Markov Chain Monte Carlo. 2011.
-4. Zeng,I.S. PhD. Research Space: The University of Auckland;
+4. Zeng,I.S. PhD. Research Space: The University of Auckland.
 2014. Statistical methods in clinical proteomic studies 2007-2014 -A
 protein concerto-.
 5. Zeng, I.S. Topics in Study Design and Analysis

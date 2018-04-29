@@ -5,11 +5,11 @@
 \title{mlmc() function.}
 \usage{
 mlmc(formula_completed, formula_missing, formula_censor = NULL,
-  formula_subject, pdata, respond_dep_missing = TRUE,
-  response_censorlim = NULL, pidname, sidname, prec_prior = NULL,
-  alpha_prior = NULL, iterno = 100, chains = 3, thin = 1, seed = 125,
-  algorithm = "NUTS", warmup = floor(iterno/2), adapt_delta_value = 0.9,
-  savefile = FALSE, usefit = FALSE)
+    formula_subject, pdata, respond_dep_missing = TRUE,
+    response_censorlim = NULL, pidname, sidname, prec_prior = NULL,
+    alpha_prior = NULL, iterno = 100, chains = 3, thin = 1, seed = 125,
+    algorithm = "NUTS", warmup = floor(iterno/2), adapt_delta_value = 0.9,
+    savefile = FALSE, usefit = FALSE)
 }
 \arguments{
 \item{formula_completed}{The main regression model formula; It has

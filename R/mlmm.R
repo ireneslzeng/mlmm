@@ -115,11 +115,11 @@
 #'#}
 #'@export
 
-mlmm=function(formula_completed, formula_missing, formula_subject, 
-pdata, respond_dep_missing=TRUE, pidname, sidname, prec_prior=NULL, 
-alpha_prior=NULL, iterno=100, chains=3, thin=1, seed=125, 
-algorithm="NUTS", warmup=floor(iterno/2), adapt_delta_value=0.90, 
-savefile=FALSE, usefit=FALSE)
+mlmm=function(formula_completed, formula_missing, formula_subject, pdata,
+    respond_dep_missing=TRUE, pidname, sidname, prec_prior=NULL,
+    alpha_prior=NULL, iterno=100, chains=3, thin=1, seed=125,
+    algorithm="NUTS", warmup=floor(iterno/2), adapt_delta_value=0.90,
+    savefile=FALSE, usefit=FALSE)
 
 {current.na.action=options('na.action');options(na.action='na.pass')
 

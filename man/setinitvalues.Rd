@@ -5,10 +5,10 @@
 \title{RSTAN code for mlmc() function}
 \usage{
 setinitvalues(npred = npred, np = np, npred_miss = npred_miss,
-  npred_sub = npred_sub, nmiss = nmiss, nsid = nsid,
-  censor_lim_upp = 0.008, ita_a = 1, ita_b = 1/10, g_mu = 0,
-  g_sig = 1, alpha_mu_u = 0, alpha_mu_s = 1, alpha_theta_a = 1,
-  alpha_theta_b = 1, beta2_theta_a = 1, beta2_theta_b = 1)
+    npred_sub = npred_sub, nmiss = nmiss, nsid = nsid,
+    censor_lim_upp = 0.008, ita_a = 1, ita_b = 1/10, g_mu = 0,
+    g_sig = 1, alpha_mu_u = 0, alpha_mu_s = 1, alpha_theta_a = 1,
+    alpha_theta_b = 1, beta2_theta_a = 1, beta2_theta_b = 1)
 }
 \arguments{
 \item{npred}{number of predictors for the regression model}

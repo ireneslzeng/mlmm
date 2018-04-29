@@ -5,10 +5,10 @@
 \title{mlmm() function.}
 \usage{
 mlmm(formula_completed, formula_missing, formula_subject, pdata,
-  respond_dep_missing = TRUE, pidname, sidname, prec_prior = NULL,
-  alpha_prior = NULL, iterno = 100, chains = 3, thin = 1, seed = 125,
-  algorithm = "NUTS", warmup = floor(iterno/2), adapt_delta_value = 0.9,
-  savefile = FALSE, usefit = FALSE)
+    respond_dep_missing = TRUE, pidname, sidname, prec_prior = NULL,
+    alpha_prior = NULL, iterno = 100, chains = 3, thin = 1, seed = 125,
+    algorithm = "NUTS", warmup = floor(iterno/2), adapt_delta_value = 0.9,
+    savefile = FALSE, usefit = FALSE)
 }
 \arguments{
 \item{formula_completed}{The main regression model formula. 

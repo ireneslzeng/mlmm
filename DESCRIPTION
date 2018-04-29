@@ -1,7 +1,7 @@
 Package: mlmm
 Type: Package
 Title: Multilevel Model for Multivariate Responses with Missing Values
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(person("Irene SL","Zeng",email="i.zeng@auckland.ac.nz", role = c("aut", "cre")),person("Thomas","Lumley",email="t.lumley@auckland.ac.nz",role="ctb"))
 Maintainer: Irene SL Zeng <i.zeng@auckland.ac.nz>
 Description: To conduct Bayesian inference regression for responses with
