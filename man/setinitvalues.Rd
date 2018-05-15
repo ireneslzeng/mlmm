@@ -2,13 +2,13 @@
 % Please edit documentation in R/setinitialvalues.R
 \name{setinitvalues}
 \alias{setinitvalues}
-\title{RSTAN code for mlmc() function}
+\title{The function to set initial values for parameters: setinitvalues().}
 \usage{
 setinitvalues(npred = npred, np = np, npred_miss = npred_miss,
     npred_sub = npred_sub, nmiss = nmiss, nsid = nsid,
     censor_lim_upp = 0.008, ita_a = 1, ita_b = 1/10, g_mu = 0,
     g_sig = 1, alpha_mu_u = 0, alpha_mu_s = 1, alpha_theta_a = 1,
-    alpha_theta_b = 1, beta2_theta_a = 1, beta2_theta_b = 1)
+    alpha_theta_b = 1/10, beta2_theta_a = 1, beta2_theta_b = 1/10)
 }
 \arguments{
 \item{npred}{number of predictors for the regression model}
@@ -27,56 +27,69 @@ such as subjects}
 
 \item{nsid}{number of second level units i.e. subjects}
 
-\item{censor_lim_upp}{upper-limit of censored value of responses}
+\item{censor_lim_upp}{upper-limit of censored value of responses.
+The default value is 0.001 according to an experiment device. User can
+change it according to the data.}
 
-\item{ita_a}{shape parameter for gamma distributed prior-ita(std of
-response value)}
+\item{ita_a}{shape parameter for gamma distributed prior-ita (std of
+response value).  The default is set to 1.}
 
-\item{ita_b}{rate parameter for gamma distributed prior-ita}
+\item{ita_b}{rate parameter for gamma distributed prior-ita. The default
+is set to 1/10. The default values of shape and rate parameters provide
+a reasonable wide range of initial value for ita. Users can change it
+accordingly.}
 
 \item{g_mu}{mean of normal distributed location parameter g for 
-re-parameterising U (regression coefficient of model in completed data)}
+re-parameterising U (regression coefficient of model in the
+completed data). The default value is set to 0 for the mean of standard
+normal distribution.}
 
-\item{g_sig}{std of normal distributed location parameter g}
+\item{g_sig}{std of normal distributed location parameter g. The default
+is set to 1 for the std of normal distribution.}
 
-\item{alpha_mu_u}{mean of normal distributed location parameter alpha_mu for 
-re-parameterising alpha (regression coefficient of logistic
-regression model for missing prob)}
+\item{alpha_mu_u}{mean of normal distributed location parameter alpha_mu
+for re-parameterising alpha (regression coefficient of logistic
+regression model for missing prob). The default is set to 0.}
 
 \item{alpha_mu_s}{std of normal distributed location parameter alpha_mu}
 
-\item{alpha_theta_a}{shape parameter of gamma distributed dispersion parameter
-alpha_theta for re-parameterising alpha}
+\item{alpha_theta_a}{shape parameter of gamma-distributed dispersion
+parameter alpha_theta for re-parameterising alpha. Default value is set
+to 1 as a natural starting value.}
 
-\item{alpha_theta_b}{rate parameter of gamma distributed alpha_theta}
+\item{alpha_theta_b}{rate parameter of gamma-distributed alpha_theta.
+Default value uses 1/10 as for ita_b. Both default values of shape(_a) and
+rate(_b) of alpha_theta can be changed to give a wider range (_b=1/10)
+or a narrower range (_b=0.5).}
 
-\item{beta2_theta_a}{shape parameter of gamma distributed beta2_theta
-units,i.e. subject)}
+\item{beta2_theta_a}{shape parameter of gamma-distributed beta2_theta
+for re-parameterizing beta2 (regression coefficient for second level 
+units,i.e. subject). Default value uses 1.}
 
 \item{beta2_theta_b}{rate parameter of gamma distributed dispersion
-parameter beta2_theta}
+parameter beta2_theta. Default value used 1/10, same as for ita_b.}
 }
 \value{
 pVAR precision matrix for predictors in completed data model
 
 U_latent standardized multinormal distributed latern
-variable to re-parameterise regression coefficient U
+variable to re-parameterise regression coefficient U.
 
-g location parameter to re-parameterise U
+g location parameter to re-parameterise U.
 
 alpha_mu mean value for alpha(regression coefficient of
-model for missing probability)
+model for missing probability).
 
 alpha_latent standardized normal distributed latent variable
-to re-parameterise alpha
+to re-parameterize alpha.
 
 beta2_latent standardized multivariate normal distributed
-latent variable to re-parameterising beta2
+latent variable to re-parameterising beta2.
 
 beta2_mu mean of the multivariate normal distributed beta2
 
 y_m_latent standardized normal distributed latent variable
-to re-parameterise response variable
+to re-parameterise response variable.
 }
 \description{
 Generate initial values for parameters

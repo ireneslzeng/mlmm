@@ -2,7 +2,7 @@
 % Please edit documentation in R/mlmm.R
 \name{mlmm}
 \alias{mlmm}
-\title{mlmm() function.}
+\title{The multilevel model to handle missing dependants: mlmm().}
 \usage{
 mlmm(formula_completed, formula_missing, formula_subject, pdata,
     respond_dep_missing = TRUE, pidname, sidname, prec_prior = NULL,
@@ -19,16 +19,16 @@ define the first level response and its explanatory variables.}
 It has the same formula as formula_completed.}
 
 \item{formula_subject}{The second level formula in the multilevel
-model 'which is used to define second level unit such as subject and
-explanatory 'variables.}
+model which is used to define second level unit such as subject and
+explanatory variables.}
 
 \item{pdata}{The dataset contains response and predictors in a long
-format.  Response is a vector with an indictor variable to define
+format.  Response is a vector with an indicator variable to define
 the corresponding unit. The data needs to have the following
 rudimental variables: the indicator variable for first level
 response, the indicator variable for second level unit such as
 subject or a sampling unit, an indicator for missingness and
-indictor of censoring.  Missingness and censor are two different
+indicator of censoring.  Missingness and censored are two different
 classification, there should not have any overlap between
 missingness and censored.  Data structure can be referenced from the
 example and reference papers.}
@@ -44,7 +44,7 @@ i.e. patient id or sampling id}
 
 \item{prec_prior}{prior precision matrix of the explanatory
 variables at the first level unit in the multilevel model, for
-example, the variables to predict ion intensity. Its dimension will
+example, the variables to predict the ion intensity. The dimension will
 be q x q, where q is the number of explanatory variables at the
 right-hand side of formula_completed. The default is a matrix with
 diagonal value of 0.01 and off-diagonal value of 0.005.}
@@ -70,7 +70,7 @@ Fixed_param).}
 \item{warmup}{Number of iterations for burn-out in stan.}
 
 \item{adapt_delta_value}{Adaptive delta value is an adaptation
-parameters 'for sampling algorithms,default is 0.85, value between
+parameters for sampling algorithms,default is 0.85, value between
 0-1.}
 
 \item{savefile}{A logical variable to indicate if the sampling files
@@ -81,20 +81,20 @@ fit.}
 }
 \value{
 Return of the function is the result fitted by stan(). It
-will have 'the summarized parameters from all chains and summary
-results for each 'chain.
+will have the summarized parameters from all chains and summary
+results for each chain.
 Plot() function will return the visualization of the mean and parameters.
 }
 \description{
 mlmm() handles Bayesian multilevel model with response
-variable 'that has missing values that depends on the response value
-itself.  'Apart from the response value, the missingness is also
-known to 'associate with the other variables.  The method is created
-for analysing 'mass-spectrometry data when it has abundance-dependant
-missing and censored 'values, and there are prior information
-available for the associations 'between the probability of missing
-and the known variables.  'The function mlmm is written for response
-variable has no censored values 'while mlmc function include imputing
+variable that has missing values that depends on the response value
+itself.  Apart from the response value, the missingness is also
+known to associate with the other variables.  The method is created
+for analyzing mass-spectrometry data when it has abundance-dependant
+missing and censored values, and there are prior information
+available for the associations between the probability of missing
+and the known variables.  The function mlmm is written for response
+variable has no censored values while mlmc function include imputing
 censored values.
 }
 \examples{

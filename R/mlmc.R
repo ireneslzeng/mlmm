@@ -1,20 +1,20 @@
-#'mlmc() function.
+#'The multilevel function to handle missing and censored dependents: mlmc().
 #'@useDynLib rstanarm, .registration = TRUE
 #'@description mlmc() handles Bayesian multilevel model with response
-#'variable 'that has left-censored values, and missing values that
-#'depends on the 'response value itself. Apart from the response value,
-#'the missingness is 'also known to associate with the other variables.
-#'The method is created for 'analysing mass-spectrometry data when it
-#'has abundance-dependant missing and 'censored values, and there are
-#'prior information available for the 'associations between the
-#'probability of missing and the known variables.  'The imputed values
-#'for the censored response are outputed as part of the 'parameters.
+#'variable that has left-censored values, and missing values that
+#'depends on the response value itself. Apart from the response value,
+#'the missingness is also known to associate with the other variables.
+#'The method is created for analyzing mass-spectrometry data when it
+#'has abundance-dependant missing and censored values, and there are
+#'prior information available for the associations between the
+#'probability of missing and the known variables. The imputed values
+#'for the censored response are outputted as part of the parameters.
 #'
-#'@import methods MASS Matrix Rcpp stats4 ggplot2 
+#'@import methods MASS Matrix Rcpp stats4 ggplot2
 #'
 #'@param formula_completed The main regression model formula; It has
-#'the same 'formula format as lmr() and it is used to define the first
-#'level response 'and its explanatory variables.
+#'the same formula format as lmr() and it is used to define the first
+#'level response and its explanatory variables.
 #'
 #'@param formula_missing  The logistic regression model formula; 
 #'It has the same formula as formula_completed.
@@ -23,18 +23,18 @@
 #'observations with censored values.
 #'
 #'@param formula_subject The second level formula in the multilevel
-#'model 'which is used to define responses such as subject and 'its
+#'model which is used to define responses such as subject and its
 #'explanatory variables.
 #'
 #'@param pdata The dataset contains response and predictors in a long
-#'format.  Response is a vector with an indictor variable to define
-#'the corresponding 'unit. The data needs to have the following
-#'rudimental variables: 'the indicator variable for first level
-#'response, 'second level indicator variable for subject 'such as
-#'subject id or a sampling unit, 'an indicator for missingness and
-#'indictor of censoring.  'Missingness and censor are two different
-#'classifications, 'when these two variables are tabulated, there must
-#'not have any observation 'defined as censored and missing.  'Data
+#'format.  Response is a vector with an indicator variable to define
+#'the corresponding unit. The data needs to have the following
+#'rudimental variables: the indicator variable for first level
+#'response, second level indicator variable for subject such as
+#'subject id or a sampling unit, an indicator for missingness and
+#'indicator of censoring.  Missingness and censored are two different
+#'classifications, when these two variables are tabulated, there must
+#'not have any observation defined as censored and missing.  Data
 #'structure can be referred from the example and vignette.
 #'
 #'@param respond_dep_missing A logical variable to indicate whether 
@@ -50,24 +50,24 @@
 #'i.e. patient id or sampling id.
 #'
 #'@param prec_prior prior precision matrix of the explanatory
-#'variables 'at the first level unit in the multilevel model, for
-#'example, the variables 'to predict ion intensity. Its dimension will
-#'be q x q, where q is the number 'of explanatory variables at the
-#'right-hand side of formula_completed.The 'default is a matrix with
-#'diagonal values of 0.01 and off-diagonal values of '0.005.
+#'variables at the first level unit in the multilevel model, for
+#'example, the variables to predict the ion intensity. The dimension will
+#'be q x q, where q is the number of explanatory variables at the
+#'right-hand side of formula_completed.  The default is a matrix with
+#'diagonal values of 0.01 and off-diagonal values of 0.005.
 #'
 #'@param alpha_prior prior for coefficients of predictors to missing
 #'probability in the logistic regression. Its length will be equal to
-#'the 'number of variables at the right-hand side of the
+#'the number of variables at the right-hand side of the
 #'formula_missing.  Default is a vector of zeros.
 #'
 #'@param iterno Number of iterations for the posterior samplings.
 #'
 #'@param chains rstan parameter to define number of chains of
-#'posterior 'samplings.
+#'posterior samplings.
 #'
 #'@param thin rstan parameter to define the frequency of iterations
-#saved.
+#'saved.
 #'
 #'@param seed random seed for rstan function.
 #'
@@ -81,13 +81,13 @@
 #'0-1.
 #'
 #'@param savefile A logical variable to indicate if the sampling files
-#'are to 'be saved.
+#'are to be saved.
 #'
 #'@param usefit A logical variable to indicate if the model use the
 #'existin gfit.
 #'
 #'@return Return of the function is the result fitted by stan. It will
-#'have 'the summarized parameters from all chains and summary results
+#'have the summarized parameters from all chains and summary results
 #'for each chain.
 #'
 #'
@@ -161,7 +161,7 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     alpha_prior=NULL, iterno=100, chains=3, thin=1, seed=125,
     algorithm="NUTS", warmup=floor(iterno/2), adapt_delta_value=0.90,
     savefile=FALSE, usefit=FALSE)
-
+    
 {current.na.action=options('na.action');options(na.action='na.pass')
     
     t=stats::terms(formula_completed)
@@ -174,10 +174,12 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     missing=stats::model.response(mf2)
     
     if (!is.null(formula_subject))
-    {tt3=stats::terms(formula_subject);
+    {
+    tt3=stats::terms(formula_subject);
     mf3=stats::model.frame(tt3,pdata,na.action='na.pass');
     mm3=stats::model.matrix(mf3,pdata)} else {
     stop("No subject formula defined")}
+    
     if (!is.null(formula_censor)){
     tt4=stats::terms(formula_censor);
     mf4=stats::model.frame(tt4,pdata,na.action='na.pass');
@@ -189,28 +191,35 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     censor_lim=response_censorlim else {
     stop("No response censor limit defined")
     }
+    
     y_all=stats::model.response(mf)
-    options('na.action' = current.na.action$na.action)
+    
+options('na.action' = current.na.action$na.action)
+    
     #unit test detect errors for censor and missing
     checkt=table(missing,censor)
     if (checkt[4]>0) 
     stop("responses have overlapped definition in censor and missing");
-    #######################Prepare data
+#######################Prepare data
     ns=length(y_all)
     if (!is.null(formula_censor)) ncensor=table(censor)[2]
     nmiss=table(missing)[2]
     nobs=ns-ncensor-nmiss
+    
     datamiss=subset(pdata,(missing==1))
     dataobs=subset(pdata,(missing!=1 & censor!=1))
     datacen=subset(pdata,(censor==1))
+    
     if (is.null(dim(mm))) npred=1 else npred=dim(mm)[2]
     if (is.null(dim(mm2))) npred_miss=1 else npred_miss=dim(mm2)[2]
     if (is.null(dim(mm3))) npred_sub=1 else npred_sub=dim(mm3)[2]
+    
     sid=dataobs[,sidname]
     sid_m=datamiss[,sidname]
     nsid=length(table(pdata[,sidname]))
     pid=dataobs[,pidname]
     pid_m=datamiss[,pidname]
+    
     np=length(table(pdata[,pidname]))
     pred=as.matrix(mm[(missing!=1 & censor!=1),]) 
     pred_miss=as.matrix(mm2[(missing!=1 & censor!=1),])
@@ -218,6 +227,7 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     pred_m=as.matrix(mm[(missing==1),])
     pred_miss_m=as.matrix(mm2[(missing==1),])
     pred_sub_m=as.matrix(mm3[(missing==1),])
+    
     if ((!is.null(formula_censor)))
     {npred_c=dim(mm4)[2]
     sid_c=datacen[,sidname]
@@ -226,11 +236,14 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     pred_c=as.matrix(mm[(censor==1),])
     pred_sub_c=as.matrix(mm3[(censor==1),])
     }
+    
     miss_m=datamiss[,colnames(mf2)[1]]
     miss_obs=dataobs[,colnames(mf2)[1]]
     if (respond_dep_missing) respond_dep=1 else respond_dep=0
+    
     #data for prior
     R=as.matrix(Matrix::Diagonal(npred))
+    
     #Assign default prior for precision matrix 
     #of explnatory variables at the first leve
     if (is.null(prec_prior)){
@@ -244,9 +257,8 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     #Assign default prior value for assoication between missing prob 
     #& variables
     if (is.null(alpha_prior)) alpha_prior=rep(0,npred_miss)
-    
-    if ((!is.null(formula_censor)))
-    {prstan_data=list(
+    if ((!is.null(formula_censor))) {
+    prstan_data=list(
     nobs=nobs, nmiss=nmiss, ncensor=ncensor, nsid=nsid, np=np,
     npred=npred, npred_miss=npred_miss, npred_sub=npred_sub,
     censor_lim=censor_lim, respond_dep=respond_dep,
@@ -272,16 +284,15 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     R=R,Sigma_sd=Sigma_sd,mn=mn,
     prec_prior=prec_prior,alpha_prior=alpha_prior)
     }
-
     if (respond_dep==1) parsstr=c("U","beta2","alpha","alpha_response") else {
     parsstr=c("U","beta2","alpha")
     }
-    
     mlmm_path=.libPaths("mlmm")
     initvalue1=function () {
     setinitvalues(npred=npred,np=np,npred_miss=npred_miss,npred_sub=npred_sub,
     nmiss=nmiss,nsid=nsid)}
-    if (usefit==TRUE) { 
+    
+    if (usefit==TRUE) {
         stanfit=stanmodels$mlmc_code
         if (savefile==TRUE)  
         fitmlmc=rstan::sampling(stanfit,data=prstan_data,iter=iterno,
@@ -314,7 +325,7 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
         control=list(adapt_delta=adapt_delta_value),sample_file=NULL,
         save_dso=FALSE)}
         }
-
+    
     print(fitmlmc); 
     if (savefile==TRUE) 
     utils::write.csv(as.array(fitmlmc),file=file.path(getwd(),

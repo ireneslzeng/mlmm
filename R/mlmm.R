@@ -1,14 +1,14 @@
-#'mlmm() function. 
+#'The multilevel model to handle missing dependants: mlmm(). 
 #'
 #'@description mlmm() handles Bayesian multilevel model with response
-#'variable 'that has missing values that depends on the response value
-#'itself.  'Apart from the response value, the missingness is also
-#'known to 'associate with the other variables.  The method is created
-#'for analysing 'mass-spectrometry data when it has abundance-dependant
-#'missing and censored 'values, and there are prior information
-#'available for the associations 'between the probability of missing
-#'and the known variables.  'The function mlmm is written for response
-#'variable has no censored values 'while mlmc function include imputing
+#'variable that has missing values that depends on the response value
+#'itself.  Apart from the response value, the missingness is also
+#'known to associate with the other variables.  The method is created
+#'for analyzing mass-spectrometry data when it has abundance-dependant
+#'missing and censored values, and there are prior information
+#'available for the associations between the probability of missing
+#'and the known variables.  The function mlmm is written for response
+#'variable has no censored values while mlmc function include imputing
 #'censored values.
 #'
 #'@import MASS Matrix Rcpp stats4 ggplot2
@@ -21,16 +21,16 @@
 #'It has the same formula as formula_completed.
 #'
 #'@param formula_subject The second level formula in the multilevel
-#'model 'which is used to define second level unit such as subject and
-#'explanatory 'variables.
+#'model which is used to define second level unit such as subject and
+#'explanatory variables.
 #'
 #'@param pdata The dataset contains response and predictors in a long
-#'format.  Response is a vector with an indictor variable to define
+#'format.  Response is a vector with an indicator variable to define
 #'the corresponding unit. The data needs to have the following
 #'rudimental variables: the indicator variable for first level
 #'response, the indicator variable for second level unit such as
 #'subject or a sampling unit, an indicator for missingness and
-#'indictor of censoring.  Missingness and censor are two different
+#'indicator of censoring.  Missingness and censored are two different
 #'classification, there should not have any overlap between
 #'missingness and censored.  Data structure can be referenced from the
 #'example and reference papers.
@@ -46,7 +46,7 @@
 #'
 #'@param prec_prior prior precision matrix of the explanatory
 #'variables at the first level unit in the multilevel model, for
-#'example, the variables to predict ion intensity. Its dimension will
+#'example, the variables to predict the ion intensity. The dimension will
 #'be q x q, where q is the number of explanatory variables at the
 #'right-hand side of formula_completed. The default is a matrix with
 #'diagonal value of 0.01 and off-diagonal value of 0.005.
@@ -72,7 +72,7 @@
 #'@param warmup Number of iterations for burn-out in stan.
 #'
 #'@param adapt_delta_value Adaptive delta value is an adaptation
-#'parameters 'for sampling algorithms,default is 0.85, value between
+#'parameters for sampling algorithms,default is 0.85, value between
 #'0-1.
 
 #'@param savefile A logical variable to indicate if the sampling files
@@ -82,8 +82,8 @@
 #'fit.
 #'
 #'@return Return of the function is the result fitted by stan(). It
-#'will have 'the summarized parameters from all chains and summary
-#'results for each 'chain.
+#'will have the summarized parameters from all chains and summary
+#'results for each chain.
 #'Plot() function will return the visualization of the mean and parameters.
 #'@examples
 #'#\dontrun{
@@ -125,9 +125,9 @@ mlmm=function(formula_completed, formula_missing, formula_subject, pdata,
 
     t=stats::terms(formula_completed)
     mf=stats::model.frame(t,pdata,na.action='na.pass')
-    mm=stats::model.matrix(mf,pdata);t2=stats::terms(formula_missing)
+    mm=stats::model.matrix(mf,pdata); t2=stats::terms(formula_missing)
     mf2=stats::model.frame(t2,pdata,na.action='na.pass')
-    mm2=stats::model.matrix(mf2,pdata);missing=stats::model.response(mf2)
+    mm2=stats::model.matrix(mf2,pdata); missing=stats::model.response(mf2)
 
     if (!is.null(formula_subject)) {tt3=stats::terms(formula_subject)
     mf3=stats::model.frame(tt3,pdata,na.action='na.pass')
@@ -140,26 +140,31 @@ options('na.action' = current.na.action$na.action)
     ns=length(y_all)
     nmiss=table(missing)[2]
     nobs=ns-nmiss
+
     datamiss=subset(pdata,(missing==1))
     dataobs=subset(pdata,(missing!=1))
-    npred=dim(mm)[2];npred_miss=dim(mm2)[2];npred_sub=dim(mm3)[2]
-    sid=dataobs[,sidname];sid_m=datamiss[,sidname]
+
+    npred=dim(mm)[2]; npred_miss=dim(mm2)[2]; npred_sub=dim(mm3)[2]
+    sid=dataobs[,sidname]; sid_m=datamiss[,sidname]
     nsid=length(table(pdata[,sidname]))
     pid=dataobs[,pidname]
     pid_m=datamiss[,pidname]
     np=length(table(pdata[,pidname]))
+
     pred=mm[(missing!=1),]
     pred_miss=mm2[(missing!=1),]
     pred_sub=mm3[(missing!=1),]
     pred_m=mm[(missing==1),]
     pred_miss_m=mm2[(missing==1),]
     pred_sub_m=mm3[(missing==1),]
+
     miss_m=datamiss[,colnames(mf2)[1]]
     miss_obs=dataobs[,colnames(mf2)[1]]
     if (respond_dep_missing) respond_dep=1 else respond_dep=0
 
 #data for prior;
     R=as.matrix(Matrix::Diagonal(npred))
+
 #Assign default prior for precision matrix
 #of explanatory variables at the first leve;
     if (is.null(prec_prior)){ prec_prior=matrix(nrow=npred,ncol=npred)
@@ -169,20 +174,21 @@ options('na.action' = current.na.action$na.action)
         }
     mn=rep(0,npred)
     Sigma_sd=rep(10,npred)
+
 #Assign default prior value for assoication of missing prob and variables
 
     if (is.null(alpha_prior)) alpha_prior=rep(1,npred_miss)
-    
+   
     prstan_data=list(
-    nobs=nobs,nmiss=nmiss,nsid=nsid,np=np,npred=npred,
-    npred_miss=npred_miss,npred_sub=npred_sub,
-    respond_dep=respond_dep,y=y_all[(missing!=1)],
-    sid=sid,pid=pid,pred=pred,pred_miss=pred_miss,pred_sub=pred_sub,
+    nobs=nobs, nmiss=nmiss, nsid=nsid, np=np, npred=npred,
+    npred_miss=npred_miss, npred_sub=npred_sub,
+    respond_dep=respond_dep, y=y_all[(missing!=1)],
+    sid=sid,pid=pid, pred=pred, pred_miss=pred_miss, pred_sub=pred_sub,
     miss_obs=miss_obs,
-    sid_m=sid_m,pid_m=pid_m,pred_m=pred_m,
-    pred_miss_m=pred_miss_m,pred_sub_m=pred_sub_m,miss_m=miss_m,
-    R=R,Sigma_sd=Sigma_sd,mn=mn,
-    prec_prior=prec_prior,alpha_prior=alpha_prior)
+    sid_m=sid_m, pid_m=pid_m, pred_m=pred_m,
+    pred_miss_m=pred_miss_m, pred_sub_m=pred_sub_m, miss_m=miss_m,
+    R=R, Sigma_sd=Sigma_sd, mn=mn,
+    prec_prior=prec_prior, alpha_prior=alpha_prior)
     if (respond_dep==1) 
     parsstr=c("U","beta2","alpha","alpha_response") else {
     parsstr=c("U","beta2","alpha")
@@ -190,39 +196,42 @@ options('na.action' = current.na.action$na.action)
     mlmm_path=.libPaths("mlmm")
     initvalue1=function () {
     setinitvalues(
-    npred=npred,np=np,
+    npred=npred, np=np,
     npred_miss=npred_miss,
-    npred_sub=npred_sub,nmiss=nmiss,
+    npred_sub=npred_sub, nmiss=nmiss,
     nsid=nsid
     )
     }
     
     if (usefit==TRUE){
-        stanfit <- stanmodels$mmlm_code
+        stanfit=stanmodels$mmlm_code
         if (savefile==TRUE) fitmlmm=rstan::sampling(stanfit,data=prstan_data,
         iter=iterno, pars=parsstr, seed=seed, thin=thin,
         algorithm=algorithm, warmup=warmup, chains=chains,
         control=list(adapt_delta=adapt_delta_value),
         sample_file=file.path(getwd(),"samples")) else {
+
         fitmlmm=rstan::sampling(stanfit,data=prstan_data,iter=iterno,
         pars=parsstr, seed=seed, thin=thin,
-        algorithm=algorithm,warmup=warmup,chains=chains,
+        algorithm=algorithm, warmup=warmup, chains=chains,
         control=list(adapt_delta=adapt_delta_value),
         sample_file=NULL)}
         }  else {
+
         if (savefile==TRUE) 
         fitmlmm=rstan::stan(file=file.path(mlmm_path,
         "mlmm/exec/mmlm_code.stan"),
         data=prstan_data,iter=iterno,
-        init=initvalue1,pars=parsstr,seed=seed,thin=thin,
-        algorithm=algorithm,warmup=warmup,chains=chains,
+        init=initvalue1, pars=parsstr, seed=seed, thin=thin,
+        algorithm=algorithm, warmup=warmup, chains=chains,
         control=list(adapt_delta=adapt_delta_value),
         sample_file=file.path(getwd(),"samples"),save_dso=FALSE) else {
+
         fitmlmm=rstan::stan(file=file.path(mlmm_path,
         "mlmm/exec/mmlm_code.stan"),
-        data=prstan_data,iter=iterno,
-        init=initvalue1,pars=parsstr,seed=seed,thin=thin,
-        algorithm=algorithm,warmup=warmup,chains=chains,
+        data=prstan_data, iter=iterno,
+        init=initvalue1, pars=parsstr, seed=seed, thin=thin,
+        algorithm=algorithm, warmup=warmup, chains=chains,
         control=list(adapt_delta=adapt_delta_value),sample_file=NULL,
         save_dso=FALSE)
         }

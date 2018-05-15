@@ -15,12 +15,12 @@ vignette: >
 ```{r setup, include=FALSE}
 library(knitr)
 library(rmarkdown)
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#Introduction
+# Introduction
 
-##Summary  
+## Summary  
 High throughput mass-spectrometry clinical proteomics studies curate
 abundance data with hierarchical structure. The non-random missingness
 of the measurements from a vast amount of information also adds
@@ -40,7 +40,7 @@ correlated data.
 
 
 
-##The proposed model 
+## The proposed model 
 We use an inference model within a multivariate-multilevel framework
 to analyze the protein abundance data that are curated in clinical
 proteomics studies. These models decompose variations from different
@@ -48,12 +48,12 @@ sources, such as experimental factors, proteins' biological features
 and biological samples' physiological properties. It is also known
 that in the ion intensities data which is used to construct protein's
 relative abundance, its missing values depend on the unobserved
-abundance value and the probability of missing associated with some
+abundance values and the probability of missing associated with some
 observable experiment factors.  In addition to this, due to the detection
 limit of a device, we also observe left-censoring
 values in the output from many studies.  We model
 non-random missingness as either left-censored or completely missing
-using one of the proposed likely-based method of Little and Rubin.  
+using one of the proposed likelihood-based method of Little and Rubin.  
 Little (1993), Little and Rubin (1987) proposed three likelihood-based methods
 (selection model, pattern-mixture model and shared-parameter model) for 
 Missing Not At Random (MNAR). Selection model, in which the missing data
@@ -71,7 +71,7 @@ mass-to-charge ratio (m/z) and the intensity values.
 
 
 
-##The computing algorithm 
+## The computing algorithm 
 Our proposed method utilizes Hamiltonian MC/Non-U-Turn Sampling 
 for the posterior distribution. Compared to the Gibb sampling,
 Hamiltonian MC (HMC) avoids the random walk by introducing the
@@ -87,7 +87,7 @@ correlated multivariate distributions.  RStan is a new tool recently
 developed to implement HMC modeling for Bayesian data analysis, of
 which the posterior distribution can be sampled using the No-U-Turn
 Sampling method -an extension of HMC. No-U-Turn sampling implements a
-recursive algorithm that will enable auto-tuning of the coupling
+recursive algorithm that will enable auto-tuning of the couple
 parameters in HMC: numbers of leap-frog steps and the discrete step.
 We based on Rstan library function stan() to set up the program for our
 proposed model. The R library "mlmm" is written to implement posterior
@@ -95,7 +95,7 @@ samplings using HMC.
 
 
 
-#The mlmm R package 
+# The mlmm R package 
 
 The functions included in the pacakge "mlmm" are: 
 
@@ -127,67 +127,80 @@ model. The input variables in this function are similar to those in
 mlmm() but without terms for censored missing.
 
 
-#Installation
+# Installation
 There are two ways to install the package. 
-##Use bioconductor as installation source
-```{r installation 1,eval=FALSE}
+
+## Use bioconductor as installation source
+
+```{r installation1,eval=FALSE}
 source("https://bioconductor.org/biocLite.R")
 BiocInstaller::biocLite("mlmm")
 library(mlmm)
 ```
-##Use github as installation source
-```{r installation 2,eval=FALSE}
+
+## Use github as installation source
+```{r installation2,eval=FALSE}
 devtools::install_github("https://github.com/ireneslzeng/mlmm")
 library(mlmm)
 ```
-#Instructions and Examples of using main functions for regression, 
-plots and diagnostics 
+
+# Instructions and Examples of using main functions for regression,
+# plots and diagnostics
+
 The following section provides examples using a simulated dataset: pdata.
 The examples include:
+
 1. Examples with no informative prior and using "usefit=TRUE" to call the
-Compiled model; and the default priors are used. 
+Compiled model; and the default priors are used.
+
 2. Example with informative priors and set "usefit=FALSE". 
 
 When set up the formulas and parameters for using the mlmm() 
 and mlmc() functions, some instructions are as follows: 
+
 1.The formula_subject will need to have at least one variable.  For
 example, to include subject-id for subject and this will provide the
 mean value for each subject.
+
 2.The missing and censor values in the response variable require
-Different indicator for each, the missing and censor indictor is 
+Different indicators, the missing and censor indictors are 
 mutually exclusive. 
 
 3.The number of iterations are better to set to be >1000. 
 The default burn-in is half of the set iterations. 
 
-##Read data and check data 
+## Read data and check data
+
 ```{r read data,eval=TRUE}
 data(pdata,package="mlmm")
 pdata[1:2,]
 ```
 
-Check if there is overlapped definition for missing and censor
+### Check for missing and censor indictors
+
+Check if there is overlapped definition for missing and censor.  
 The definition for missing and censored are differently defined. 
-The following Checking make sure the indicator for missing and censored 
-are mutually exclusive. 
+The following code is to check if the indicators for missing and 
+censored are mutually exclusive. 
 
 ```{r table for miss and censor,eval=TRUE}
 table(pdata$miss,pdata$censor)
 ```
-If there are overlapping, convert missing from 1 to 0 where censor =1. 
-The following codes are used to convert miss=1 to 0 if the data value is 
-actually a censored output. 
 
-###If there are overlapping, convert missing from 1 to 0 where censor =1
+If the indictors coded for missing and censored are overlapped, 
+the following codes convert missing indictor from 1 to 0 
+where censor =1.
+
 ```{r re-assign miss and censor,eval=TRUE}
 n=dim(pdata)[1]
 for (i in seq_len(n))
 if (pdata$miss[i]==1 && pdata$censor[i]==1) pdata$miss[i]=0
 ```
-And then, we can set the formula for response, missingness and subject as 
-the following: 
 
-###Set the formula for response, missingness and subject
+After that, we can set the formula for response, probability of missing
+and subject as the followings: 
+
+### Set the formula for response, missingness and subject
 ```{r set formular examples,eval=TRUE}
 formula_completed=var1~var2+treatment;
 formula_missing=miss~var2;
@@ -196,79 +209,96 @@ formula_subject=~treatment;
 response_censorlim=0.002;
 ```
 
-###Set the path and fit the regression model using mlmc()
-The formula for subject will need to have at least one variable.  For
+Where var1 is the response variable, miss and censor are the indicator
+variables for missing and censoring respectively. 
+
+## Set the formula and fit the regression model 
+The formula for subject requires at least one variable.  For
 example, to include subject-id for subject and this will provide the
 mean value for each subject.
 
-##R examples for using function mlmc() and mlmm()
-###R examples for mlmc()
-####Example 1a. Set usefit=TRUE to call complied codes
+### R examples for mlmc()
+#### Example 1a. Set usefit=TRUE to call complied codes
+
 When set usefit=TRUE, we can have posterior samples based on the
-Previous compiled codes.
+previous compiled codes.
 
 ```{r example 1a,eval=TRUE}
 library(mlmm)
-model2=mlmc(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_censor=censor~1,formula_subject=~sid,pdata=pdata,
-response_censorlim=0.002,respond_dep_missing=TRUE,
-pidname="geneid",sidname="sid",
-iterno=100,chains=2,savefile=TRUE,usefit=TRUE)
+model2=mlmc(formula_completed=var1~var2+treatment,
+formula_missing=miss~var2, 
+formula_censor=censor~1, formula_subject=~sid, 
+pdata=pdata, response_censorlim=0.002, respond_dep_missing=TRUE, 
+pidname="geneid", sidname="sid", 
+iterno=100, chains=2, savefile=TRUE, usefit=TRUE)
 ```
-####Example 1b-1c. Use a provided informative priors
-Example 1b is to set prior of alpha.
-alpha_prior is a prior for coefficients of intercept and var2 
-in the logistic regression to predict missing probability. 
-alpha_prior is a vector with a length of (1+number of predictors).
 
-Example 1c is to Use an informative prior for precision matrix. 
-prec_prior  is the precision matrix prior of regression coefficients
--intercept and predictor var2 in the completed data formula.
+#### Example 1b-1c. Use a provided informative priors
+Example 1b is to set priors for regression coefficients in the logistic
+regression model for missingness.
+alpha_prior is a prior for coefficients (including intercept) in the 
+logistic regression to predict missing probability; it is a vector with
+a length of (1+number of predictors).
 
-Example 1d is to use the usefit=TRUE and provide priors
+Example 1c is to Use an informative prior for precision matrix in the
+regression for completed data. 
+prec_prior is the precision matrix prior of regression coefficients
+-intercept and predictor (var2) in the completed data formula.
+
+Example 1d is to use the usefit=TRUE option given informative priors.
 This example is to have 1000 posterior samples based on the previous
 model. 
 
 ```{r example 1b-1c,eval=FALSE}
-model1=mlmc(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_censor=censor~1,formula_subject=~sid,pdata=pdata,
-response_censorlim=0.002,
-respond_dep_missing=TRUE,pidname="geneid",sidname="sid",alpha_prior=c(0,0.001),
-iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
+model1=mlmc(formula_completed=var1~var2+treatment, 
+formula_missing=miss~var2, 
+formula_censor=censor~1, formula_subject=~sid, 
+pdata=pdata, response_censorlim=0.002,
+respond_dep_missing=TRUE, pidname="geneid", sidname="sid", 
+alpha_prior=c(0,0.001), iterno=100, chains=2, 
+savefile=TRUE, usefit=FALSE)
+
 prec_example=matrix(c(0.01,0.001,0.001,0.01),nrow=2,ncol=2)
 
-model3=mlmc(formula_completed=var1~var2,formula_missing=miss~var2,
-formula_censor=censor~1,formula_subject=~sid+treatment,pdata=pdata,
-response_censorlim=0.002,respond_dep_missing=TRUE,
-pidname="geneid",sidname="sid",prec_prior=prec_example,
-iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
+model3=mlmc(formula_completed=var1~var2, 
+formula_missing=miss~var2, 
+formula_censor=censor~1, formula_subject=~sid+treatment, 
+pdata=pdata, response_censorlim=0.002, respond_dep_missing=TRUE,
+pidname="geneid", sidname="sid", prec_prior=prec_example,
+iterno=100, chains=2, savefile=TRUE, usefit=FALSE)
 
-model3b=mlmc(formula_completed=var1~var2,formula_missing=miss~var2,
-formula_censor=censor~1,formula_subject=~sid+treatment,pdata=pdata,
-response_censorlim=0.002,respond_dep_missing=TRUE,
-pidname="geneid",sidname="sid",prec_prior=prec_example,
-iterno=1000,chains=2,savefile=TRUE,usefit=TRUE)
+model3b=mlmc(formula_completed=var1~var2, 
+formula_missing=miss~var2, 
+formula_censor=censor~1, formula_subject=~sid+treatment, 
+pdata=pdata, response_censorlim=0.002, respond_dep_missing=TRUE,
+pidname="geneid", sidname="sid", prec_prior=prec_example,
+iterno=1000, chains=2, savefile=TRUE, usefit=TRUE)
 
 ```
 
 
-###R examples for mlmm()
-Formular for completed data, subject and missingness requires at
+### R examples for mlmm()
+Formulas for completed data, subject and missingness all require at
 least one variable.
 
-####Example 2a. Set usefit=TRUE to call the complied code
+#### Example 2a. Set usefit=TRUE to call the complied code
+
 ```{r example 2a,eval=TRUE}
-model5=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_subject=~sid,pdata=pdata,
-respond_dep_missing=FALSE,pidname="geneid",sidname="sid",
-iterno=100,chains=2,savefile=TRUE,usefit=TRUE)
+model5=mlmm(formula_completed=var1~var2+treatment, 
+formula_missing=miss~var2, 
+formula_subject=~sid, pdata=pdata,
+respond_dep_missing=FALSE, pidname="geneid", sidname="sid",
+iterno=100, chains=2, savefile=TRUE, usefit=TRUE)
 ```
-####Example 2b-2d. Provide informative priors
-The user define priors includes:  
-a) prec_prior : the precision matrix of first level parameter var2 
-and treatment;
+
+#### Example 2b-2d. Provide informative priors
+The user define priors include:
+
+a) prec_prior : the precision matrix of the first-level parameters (var2 
+and treatment);
+
 b) alpha_prior: coefficients for intercept and var2 to predict 
-missing probability in logistic regression.
+probability of having missing value in logistic regression.
 
 ```{r example 2b prior,eval=TRUE}
 prec_example=matrix(c(0.01,0.001,0.001,0.001,0.01,0.001,0.001,0.001,0.01),
@@ -276,83 +306,99 @@ nrow=3,ncol=3)
 ```
 
 ```{r example 2b, 2c and 2d,eval=FALSE}
-model4=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_subject=~sid,pdata=pdata,
-respond_dep_missing=FALSE,pidname="geneid",sidname="sid",
-alpha_prior=c(0,0.001),prec_prior=prec_example,
-iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
+model4=mlmm(formula_completed=var1~var2+treatment, 
+formula_missing=miss~var2,
+formula_subject=~sid, pdata=pdata,
+respond_dep_missing=FALSE, pidname="geneid", sidname="sid",
+alpha_prior=c(0,0.001), prec_prior=prec_example,
+iterno=100, chains=2, savefile=TRUE, usefit=FALSE)
 
 #Example 2c. Use default priors 
-model5=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_subject=~sid+treatment,pdata=pdata,
-respond_dep_missing=FALSE,pidname="geneid",
-sidname="sid",iterno=100,chains=2,savefile=TRUE,usefit=FALSE)
+model5=mlmm(formula_completed=var1~var2+treatment, 
+formula_missing=miss~var2,
+formula_subject=~sid+treatment, pdata=pdata,
+respond_dep_missing=FALSE, pidname="geneid",
+sidname="sid", iterno=100, chains=2, savefile=TRUE, usefit=FALSE)
 
-#Example 2d. set usefit=TRUE to call the compiled model from previous run 
-model5b=mlmm(formula_completed=var1~var2+treatment,formula_missing=miss~var2,
-formula_subject=~sid+treatment,pdata=pdata,
-respond_dep_missing=FALSE,pidname="geneid",
-sidname="sid",iterno=1000,chains=2,savefile=TRUE,usefit=TRUE)
+#Example 2d. set usefit=TRUE to call the compiled model from the previous run 
+model5b=mlmm(formula_completed=var1~var2+treatment, 
+formula_missing=miss~var2, 
+formula_subject=~sid+treatment, pdata=pdata, 
+respond_dep_missing=FALSE, pidname="geneid", 
+sidname="sid", iterno=1000, chains=2, savefile=TRUE, usefit=TRUE)
 ```
 
 
-##How to make plots of the parameters and to diagnose convergence
+## How to make plots of the parameters and to diagnose convergence
 
-From the printout, we can see that, if the estimate converges, 
-it will have high number of efficient samples and the r value closes to 1 
-The following codes are to 
-1) plot posterior parameter using the outsummary results from multiple chains
-and, 
-2) plot the trajectory including those values generated from burn-in iterations.
+If the estimate converges, it will have high number of efficient samples 
+and the rhat value will close to 1.  
 
-###plot posterior parameters
+The following codes are to:
+
+1) plot posterior parameter using the outsummary results from multiple chains.
+
+2) plot the trajectory of posterior sampling including those values generated 
+from burn-in iterations.
+
+### plot posterior parameters
 ```{r plot one,echo=TRUE,eval=TRUE}
 summaryreader=read.csv(file=file.path(getwd(),"outsummary.csv"),header=TRUE,
 sep=",",skip=0)
-iterno=dim(summaryreader)[1]
-burnin=iterno/2
+
+iterno=dim(summaryreader)[1];burnin=iterno/2
+
 U.1.1=rowMeans(matrix(c(summaryreader$chain.1.U.1.1,
 summaryreader$chain.2.U.1.1),nrow=iterno,ncol=2))[burnin:iterno]
+
 meanU=mean(U.1.1)
 qU=quantile(U.1.1,p=seq(0,1,by=0.025))
 scale=seq(0,1,by=0.025)
+
 plot(scale,qU,pch=19,ylab="quantiles of estimate",xlab="quantiles")
 
 segments(0,qU[names(qU)=="50%"],1,qU[names(qU)=="50%"],lwd=2,col="red")
 segments(0,qU[names(qU)=="2.5%"],1,qU[names(qU)=="2.5%"],lty=2,lwd=2,col="red")
 segments(0,qU[names(qU)=="97.5%"],1,qU[names(qU)=="97.5%"],lty=2,lwd=2,
 col="red")
+
 legend(0.5,qU[names(qU)=="50%"],"median",cex=0.8,bty="n")
 legend(0.03,qU[names(qU)=="2.5%"],"2.5%",cex=0.8,bty="n")
 legend(0.90,qU[names(qU)=="97.5%"],"97.5%",cex=0.8,bty="n")
 qU
 ```
 
-###plot trajectory of the posterior samples
+### plot trajectory of the posterior samples
+
 ```{r plot two,echo=TRUE,eval=TRUE}
 sample1reader=read.csv(file=file.path(getwd(),"samples_1.csv"),header=TRUE,
 sep=",",skip=25)
+
 sample2reader=read.csv(file=file.path(getwd(),"samples_2.csv"),header=TRUE,
 sep=",",skip=25)
 
 #plot variable U.1.1 - the intercept of first unit
 trajectory_length=dim(sample1reader)[1]
+
 plot(seq(1,trajectory_length,by=1),sample1reader$U.1.1,xlab="trajectory
 number",ylab="U.1.1",type="n",
 ylim=c(min(sample1reader$U.1.1,sample2reader$U.1.1,na.rm=TRUE),
 max(sample1reader$U.1.1,sample2reader$U.1.1,na.rm=TRUE)))
+
 trajectory=seq(1,trajectory_length,by=1)
+
 lines(trajectory,sample1reader$U.1.1)
 lines(trajectory,sample2reader$U.1.1,col="red")
 ```
 
-#sessionInfo
+# sessionInfo
 All of the outputs in this vignette are produced under the following conditions:
+
 ```{r sessionInfo,echo=TRUE,eval=TRUE}
 sessionInfo()
 ```
 
-#References
+# References
 
 1. Hoffman, M.D. and Gelman, A. The No-U-Turn Sampler: Adaptively
 Setting Path Lengths in Hamiltonian Monte Carlo. Journal of machine
@@ -364,9 +410,9 @@ data. J. Am. Statist. Assoc. 1993;88:125-134.
 Rubin, D.B. Statistical Analysis with Missing Data. 1987.  Neal,
 R.M. MCMC using Hamiltonian dynamics. In: S. Brooks, e.a., editor,
 Handbook of Markov Chain Monte Carlo. 2011.
-4. Zeng,I.S. PhD. Research Space: The University of Auckland.
-2014. Statistical methods in clinical proteomic studies 2007-2014 -A
-protein concerto-.
+4. Zeng,I.S. PhD thesis. Statistical methods in clinical proteomic studies
+2007-2014 -A protein concerto-. Research Space: The University of Auckland.
+2014.
 5. Zeng, I.S. Topics in Study Design and Analysis
 for Multistage Clinical Proteomics In: Jung, K., editor, Statistical
 Analysis in Proteomics New York: Humana Press: Springer; 2015.

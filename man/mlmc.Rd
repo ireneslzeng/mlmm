@@ -2,7 +2,8 @@
 % Please edit documentation in R/mlmc.R
 \name{mlmc}
 \alias{mlmc}
-\title{mlmc() function.}
+\title{The multilevel function to handle missing and censored dependents:
+mlmc().}
 \usage{
 mlmc(formula_completed, formula_missing, formula_censor = NULL,
     formula_subject, pdata, respond_dep_missing = TRUE,
@@ -13,8 +14,8 @@ mlmc(formula_completed, formula_missing, formula_censor = NULL,
 }
 \arguments{
 \item{formula_completed}{The main regression model formula; It has
-the same 'formula format as lmr() and it is used to define the first
-level response 'and its explanatory variables.}
+the same formula format as lmr() and it is used to define the first
+level response and its explanatory variables.}
 
 \item{formula_missing}{The logistic regression model formula; 
 It has the same formula as formula_completed.}
@@ -23,19 +24,19 @@ It has the same formula as formula_completed.}
 observations with censored values.}
 
 \item{formula_subject}{The second level formula in the multilevel
-model 'which is used to define responses such as subject and 'its
+model which is used to define responses such as subject and its
 explanatory variables.}
 
 \item{pdata}{The dataset contains response and predictors in a long
-format.  Response is a vector with an indictor variable to define
-the corresponding 'unit. The data needs to have the following
-rudimental variables: 'the indicator variable for first level
-response, 'second level indicator variable for subject 'such as
-subject id or a sampling unit, 'an indicator for missingness and
-indictor of censoring.  'Missingness and censor are two different
-classifications, 'when these two variables are tabulated, there must
-not have any observation 'defined as censored and missing.  'Data
-structure can be referred from the example and vignette.}
+format.  Response is a vector with an indicator variable to define
+the corresponding unit. The data needs to have the following
+rudimental variables: the indicator variable for first level
+response, second level indicator variable for subject such as
+subject id or a sampling unit, an indicator for missingness and
+indicator of censoring.  Missingness and censored are two different
+classifications, when these two variables are tabulated, there must
+not have any observation defined as censored and missing.  Data
+structure can be referred from the examples and vignette.}
 
 \item{respond_dep_missing}{A logical variable to indicate whether 
 response value is missing-dependant.}
@@ -50,23 +51,24 @@ i.e. protein name or gene name.}
 i.e. patient id or sampling id.}
 
 \item{prec_prior}{prior precision matrix of the explanatory
-variables 'at the first level unit in the multilevel model, for
-example, the variables 'to predict ion intensity. Its dimension will
-be q x q, where q is the number 'of explanatory variables at the
-right-hand side of formula_completed.The 'default is a matrix with
-diagonal values of 0.01 and off-diagonal values of '0.005.}
+variables at the first level unit in the multilevel model, for
+example, the variables to predict the ion intensity. The dimension will
+be q x q, where q is the number of explanatory variables at the
+right-hand side of formula_completed.  The default is a matrix with
+diagonal values of 0.01 and off-diagonal values of 0.005.}
 
 \item{alpha_prior}{prior for coefficients of predictors to missing
 probability in the logistic regression. Its length will be equal to
-the 'number of variables at the right-hand side of the
+the number of variables at the right-hand side of the
 formula_missing.  Default is a vector of zeros.}
 
 \item{iterno}{Number of iterations for the posterior samplings.}
 
 \item{chains}{rstan parameter to define number of chains of
-posterior 'samplings.}
+posterior samplings.}
 
-\item{thin}{rstan parameter to define the frequency of iterations}
+\item{thin}{rstan parameter to define the frequency of iterations
+saved.}
 
 \item{seed}{random seed for rstan function.}
 
@@ -80,26 +82,26 @@ parameters for sampling algorithms, default is 0.85, value between
 0-1.}
 
 \item{savefile}{A logical variable to indicate if the sampling files
-are to 'be saved.}
+are to be saved.}
 
 \item{usefit}{A logical variable to indicate if the model use the
 existin gfit.}
 }
 \value{
 Return of the function is the result fitted by stan. It will
-have 'the summarized parameters from all chains and summary results
+have the summarized parameters from all chains and summary results
 for each chain.
 }
 \description{
 mlmc() handles Bayesian multilevel model with response
-variable 'that has left-censored values, and missing values that
-depends on the 'response value itself. Apart from the response value,
-the missingness is 'also known to associate with the other variables.
-The method is created for 'analysing mass-spectrometry data when it
-has abundance-dependant missing and 'censored values, and there are
-prior information available for the 'associations between the
-probability of missing and the known variables.  'The imputed values
-for the censored response are outputed as part of the 'parameters.
+variable that has left-censored values, and missing values that
+depends on the response value itself. Apart from the response value,
+the missingness is also known to associate with the other variables.
+The method is created for analyzing mass-spectrometry data when it
+has abundance-dependant missing and censored values, and there are
+prior information available for the associations between the
+probability of missing and the known variables. The imputed values
+for the censored response are outputted as part of the parameters.
 }
 \examples{
 \dontshow{
