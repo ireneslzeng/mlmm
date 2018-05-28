@@ -2,8 +2,7 @@
 % Please edit documentation in R/mlmc.R
 \name{mlmc}
 \alias{mlmc}
-\title{The multilevel function to handle missing and censored dependents:
-mlmc().}
+\title{The multilevel function for missing and censored dependents: mlmc().}
 \usage{
 mlmc(formula_completed, formula_missing, formula_censor = NULL,
     formula_subject, pdata, respond_dep_missing = TRUE,
@@ -36,7 +35,7 @@ subject id or a sampling unit, an indicator for missingness and
 indicator of censoring.  Missingness and censored are two different
 classifications, when these two variables are tabulated, there must
 not have any observation defined as censored and missing.  Data
-structure can be referred from the examples and vignette.}
+structure can be referred from the example and vignette.}
 
 \item{respond_dep_missing}{A logical variable to indicate whether 
 response value is missing-dependant.}

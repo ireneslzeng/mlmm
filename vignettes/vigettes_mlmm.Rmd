@@ -12,7 +12,7 @@ vignette: >
     %\VignetteEncoding{UTF-8}  
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 library(knitr)
 library(rmarkdown)
 knitr::opts_chunk$set(echo = TRUE)
@@ -144,8 +144,7 @@ devtools::install_github("https://github.com/ireneslzeng/mlmm")
 library(mlmm)
 ```
 
-# Instructions and Examples of using main functions for regression,
-# plots and diagnostics
+# Instructions and Examples of using main functions for regressions
 
 The following section provides examples using a simulated dataset: pdata.
 The examples include:
@@ -412,11 +411,13 @@ R.M. MCMC using Hamiltonian dynamics. In: S. Brooks, e.a., editor,
 Handbook of Markov Chain Monte Carlo. 2011.
 4. Zeng,I.S. PhD thesis. Statistical methods in clinical proteomic studies
 2007-2014 -A protein concerto-. Research Space: The University of Auckland.
-2014.
 5. Zeng, I.S. Topics in Study Design and Analysis
 for Multistage Clinical Proteomics In: Jung, K., editor, Statistical
 Analysis in Proteomics New York: Humana Press: Springer; 2015.
-6. Zeng, I.S., Lumley, T., Ruggiero, K. and Middleditch, M. A Bayesian
+6. Hrydziuszko, O., and Viant, M. R.. Missing values in mass spectrometry 
+based metabolomics: an undervalued step in the data processing pipeline. 
+Metabolomics 2012;8,S161S174.
+7. Zeng, I.S., Lumley, T., Ruggiero, K. and Middleditch, M. A Bayesian
 approach to multivariate and multilevel modelling with non-random
 missingness for hierarchical clinical proteomics data. In:
 https://www.biorxiv.org/content/early/2017/06/21/153049; 2017.

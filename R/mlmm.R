@@ -12,6 +12,8 @@
 #'censored values.
 #'
 #'@import MASS Matrix Rcpp stats4 ggplot2
+#'@importFrom stats terms model.frame model.matrix model.response
+#'@importFrom Matrix Diagonal
 #'
 #'@param formula_completed The main regression model formula. 
 #'It has the same formula format as lmr() and it is used to 
@@ -116,23 +118,23 @@
 #'@export
 
 mlmm=function(formula_completed, formula_missing, formula_subject, pdata,
-    respond_dep_missing=TRUE, pidname, sidname, prec_prior=NULL,
-    alpha_prior=NULL, iterno=100, chains=3, thin=1, seed=125,
-    algorithm="NUTS", warmup=floor(iterno/2), adapt_delta_value=0.90,
-    savefile=FALSE, usefit=FALSE)
+respond_dep_missing=TRUE, pidname, sidname, prec_prior=NULL,
+alpha_prior=NULL, iterno=100, chains=3, thin=1, seed=125,
+algorithm="NUTS", warmup=floor(iterno/2), adapt_delta_value=0.90,
+savefile=FALSE, usefit=FALSE)
 
 {current.na.action=options('na.action');options(na.action='na.pass')
 
-    t=stats::terms(formula_completed)
-    mf=stats::model.frame(t,pdata,na.action='na.pass')
-    mm=stats::model.matrix(mf,pdata); t2=stats::terms(formula_missing)
-    mf2=stats::model.frame(t2,pdata,na.action='na.pass')
-    mm2=stats::model.matrix(mf2,pdata); missing=stats::model.response(mf2)
+    t=terms(formula_completed)
+    mf=model.frame(t,pdata,na.action='na.pass')
+    mm=model.matrix(mf,pdata); t2=stats::terms(formula_missing)
+    mf2=model.frame(t2,pdata,na.action='na.pass')
+    mm2=model.matrix(mf2,pdata); missing=stats::model.response(mf2)
 
     if (!is.null(formula_subject)) {tt3=stats::terms(formula_subject)
-    mf3=stats::model.frame(tt3,pdata,na.action='na.pass')
-    mm3=stats::model.matrix(mf3,pdata)}
-    y_all=stats::model.response(mf)
+    mf3=model.frame(tt3,pdata,na.action='na.pass')
+    mm3=model.matrix(mf3,pdata)}
+    y_all=model.response(mf)
 
 options('na.action' = current.na.action$na.action)
 
@@ -163,7 +165,7 @@ options('na.action' = current.na.action$na.action)
     if (respond_dep_missing) respond_dep=1 else respond_dep=0
 
 #data for prior;
-    R=as.matrix(Matrix::Diagonal(npred))
+    R=as.matrix(Diagonal(npred))
 
 #Assign default prior for precision matrix
 #of explanatory variables at the first leve;
@@ -178,7 +180,6 @@ options('na.action' = current.na.action$na.action)
 #Assign default prior value for assoication of missing prob and variables
 
     if (is.null(alpha_prior)) alpha_prior=rep(1,npred_miss)
-   
     prstan_data=list(
     nobs=nobs, nmiss=nmiss, nsid=nsid, np=np, npred=npred,
     npred_miss=npred_miss, npred_sub=npred_sub,
@@ -219,7 +220,7 @@ options('na.action' = current.na.action$na.action)
         }  else {
 
         if (savefile==TRUE) 
-        fitmlmm=rstan::stan(file=file.path(mlmm_path,
+        fitmlmm=stan(file=file.path(mlmm_path,
         "mlmm/exec/mmlm_code.stan"),
         data=prstan_data,iter=iterno,
         init=initvalue1, pars=parsstr, seed=seed, thin=thin,
@@ -227,7 +228,7 @@ options('na.action' = current.na.action$na.action)
         control=list(adapt_delta=adapt_delta_value),
         sample_file=file.path(getwd(),"samples"),save_dso=FALSE) else {
 
-        fitmlmm=rstan::stan(file=file.path(mlmm_path,
+        fitmlmm=stan(file=file.path(mlmm_path,
         "mlmm/exec/mmlm_code.stan"),
         data=prstan_data, iter=iterno,
         init=initvalue1, pars=parsstr, seed=seed, thin=thin,

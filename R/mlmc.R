@@ -1,4 +1,4 @@
-#'The multilevel function to handle missing and censored dependents: mlmc().
+#'The multilevel function for missing and censored dependents: mlmc().
 #'@useDynLib rstanarm, .registration = TRUE
 #'@description mlmc() handles Bayesian multilevel model with response
 #'variable that has left-censored values, and missing values that
@@ -11,6 +11,8 @@
 #'for the censored response are outputted as part of the parameters.
 #'
 #'@import methods MASS Matrix Rcpp stats4 ggplot2
+#'@importFrom stats terms model.frame model.matrix model.response
+#'@importFrom Matrix Diagonal
 #'
 #'@param formula_completed The main regression model formula; It has
 #'the same formula format as lmr() and it is used to define the first
@@ -156,35 +158,35 @@
 #'@export
 
 mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
-    formula_subject, pdata, respond_dep_missing=TRUE,
-    response_censorlim=NULL, pidname, sidname, prec_prior=NULL,
-    alpha_prior=NULL, iterno=100, chains=3, thin=1, seed=125,
-    algorithm="NUTS", warmup=floor(iterno/2), adapt_delta_value=0.90,
-    savefile=FALSE, usefit=FALSE)
+formula_subject, pdata, respond_dep_missing=TRUE,
+response_censorlim=NULL, pidname, sidname, prec_prior=NULL,
+alpha_prior=NULL, iterno=100, chains=3, thin=1, seed=125,
+algorithm="NUTS", warmup=floor(iterno/2), adapt_delta_value=0.90,
+savefile=FALSE, usefit=FALSE)
     
 {current.na.action=options('na.action');options(na.action='na.pass')
     
-    t=stats::terms(formula_completed)
-    mf=stats::model.frame(t,pdata,na.action='na.pass')
-    mm=stats::model.matrix(mf,pdata)
+    t=terms(formula_completed)
+    mf=model.frame(t,pdata,na.action='na.pass')
+    mm=model.matrix(mf,pdata)
     
-    t2=stats::terms(formula_missing)
-    mf2=stats::model.frame(t2,pdata,na.action='na.pass')
-    mm2=stats::model.matrix(mf2,pdata)
-    missing=stats::model.response(mf2)
+    t2=terms(formula_missing)
+    mf2=model.frame(t2,pdata,na.action='na.pass')
+    mm2=model.matrix(mf2,pdata)
+    missing=model.response(mf2)
     
     if (!is.null(formula_subject))
     {
-    tt3=stats::terms(formula_subject);
-    mf3=stats::model.frame(tt3,pdata,na.action='na.pass');
-    mm3=stats::model.matrix(mf3,pdata)} else {
+    tt3=terms(formula_subject);
+    mf3=model.frame(tt3,pdata,na.action='na.pass');
+    mm3=model.matrix(mf3,pdata)} else {
     stop("No subject formula defined")}
     
     if (!is.null(formula_censor)){
-    tt4=stats::terms(formula_censor);
-    mf4=stats::model.frame(tt4,pdata,na.action='na.pass');
-    mm4=stats::model.matrix(mf4,pdata);
-    censor=stats::model.response(mf4)
+    tt4=terms(formula_censor);
+    mf4=model.frame(tt4,pdata,na.action='na.pass');
+    mm4=model.matrix(mf4,pdata);
+    censor=model.response(mf4)
     } else ncensor=0;
     
     if (!is.null(response_censorlim))
@@ -192,7 +194,7 @@ mlmc=function(formula_completed, formula_missing, formula_censor=NULL,
     stop("No response censor limit defined")
     }
     
-    y_all=stats::model.response(mf)
+    y_all=model.response(mf)
     
 options('na.action' = current.na.action$na.action)
     
@@ -242,7 +244,7 @@ options('na.action' = current.na.action$na.action)
     if (respond_dep_missing) respond_dep=1 else respond_dep=0
     
     #data for prior
-    R=as.matrix(Matrix::Diagonal(npred))
+    R=as.matrix(Diagonal(npred))
     
     #Assign default prior for precision matrix 
     #of explnatory variables at the first leve
@@ -309,7 +311,7 @@ options('na.action' = current.na.action$na.action)
         }
         }  else {  
         if (savefile==TRUE) 
-        fitmlmc=rstan::stan(file=file.path(mlmm_path,
+        fitmlmc=stan(file=file.path(mlmm_path,
         "mlmm/exec/mlmc_code.stan"),
         data=prstan_data, iter=iterno,init=initvalue1,pars=parsstr,
         seed=seed,thin=thin,algorithm=algorithm,warmup=warmup,chains=chains,
@@ -317,7 +319,7 @@ options('na.action' = current.na.action$na.action)
         sample_file=file.path(getwd(),"samples"),save_dso=FALSE) else 
         {
         stanfit=stanmodels$mlmc_code
-        fitmlmc=rstan::stan(file=file.path(mlmm_path,
+        fitmlmc=stan(file=file.path(mlmm_path,
         "mlmm/exec/mlmc_code.stan"),
         data=prstan_data,
         iter=iterno, init=initvalue1,pars=parsstr, seed=seed, thin=thin,
