@@ -15,16 +15,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 options(warn = 3L)
-stan_files <- dir("exec", pattern = "stan$", full.names = TRUE)
-include_files <- dir("src", pattern = "hpp$")
+stan_files = dir("exec", pattern = "stan$", full.names = TRUE)
+include_files = dir("src", pattern = "hpp$")
 cat(readLines(file.path("inst", "chunks", "license.stan")),
   "#ifndef MODELS_HPP", "#define MODELS_HPP",
   "#define STAN__SERVICES__COMMAND_HPP", "#include <rstan/rstaninc.hpp>",
   if (length(include_files)) paste0('#include "', include_files, '"'),
   sapply(stan_files, FUN = function(f) {
-    cppcode <- rstan::stanc_builder(f, allow_undefined = TRUE,
+    cppcode  rstan::stanc_builder(f, allow_undefined = TRUE,
                  isystem = file.path("inst", "chunks"))$cppcode
-    cppcode <- gsub("typedef.*stan_model.*;", "", cppcode, perl = TRUE)
+    cppcode = gsub("typedef.*stan_model.*;", "", cppcode, perl = TRUE)
     return(cppcode)
   }), "#endif", file = file.path("src", "include", "models.hpp"), 
   sep = "\n", append = FALSE)
