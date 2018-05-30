@@ -11,7 +11,7 @@
 
 <meta name="author" content="Irene SL Zeng" />
 
-<meta name="date" content="2018-05-28" />
+<meta name="date" content="2018-05-30" />
 
 <title>Introduction of mlmm</title>
 
@@ -562,9 +562,9 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Introduction of mlmm</h1>
 <p class="author-name">Irene SL Zeng</p>
-<h4 class="date"><em>28 May 2018</em></h4>
+<h4 class="date"><em>30 May 2018</em></h4>
 <h4 class="package">Package</h4>
-<p>mlmm 0.99.9</p>
+<p>mlmm 0.99.10</p>
 
 </div>
 
@@ -831,9 +831,9 @@ iterno=100, chains=2, savefile=TRUE, usefit=TRUE)</code></pre>
 ## Iteration: 90 / 100 [ 90%]  (Sampling)
 ## Iteration: 100 / 100 [100%]  (Sampling)
 ## 
-##  Elapsed Time: 3.57 seconds (Warm-up)
-##                5.231 seconds (Sampling)
-##                8.801 seconds (Total)
+##  Elapsed Time: 3.651 seconds (Warm-up)
+##                5.332 seconds (Sampling)
+##                8.983 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'mlmc_code' NOW (CHAIN 2).
@@ -864,8 +864,8 @@ iterno=100, chains=2, savefile=TRUE, usefit=TRUE)</code></pre>
 ## Iteration: 90 / 100 [ 90%]  (Sampling)
 ## Iteration: 100 / 100 [100%]  (Sampling)
 ## 
-##  Elapsed Time: 0.29 seconds (Warm-up)
-##                0.24 seconds (Sampling)
+##  Elapsed Time: 0.28 seconds (Warm-up)
+##                0.25 seconds (Sampling)
 ##                0.53 seconds (Total)</code></pre>
 <pre><code>## Warning: There were 76 divergent transitions after warmup. Increasing adapt_delta above 0.9 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
@@ -987,7 +987,7 @@ iterno=100, chains=2, savefile=TRUE, usefit=TRUE)</code></pre>
 ## alpha_response     1  2.11
 ## lp__               1 26.03
 ## 
-## Samples were drawn using NUTS(diag_e) at Mon May 28 17:29:51 2018.
+## Samples were drawn using NUTS(diag_e) at Wed May 30 15:47:56 2018.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
@@ -1093,9 +1093,9 @@ iterno=100, chains=2, savefile=TRUE, usefit=TRUE)</code></pre>
 ## Iteration: 90 / 100 [ 90%]  (Sampling)
 ## Iteration: 100 / 100 [100%]  (Sampling)
 ## 
-##  Elapsed Time: 0.36 seconds (Warm-up)
-##                1.38 seconds (Sampling)
-##                1.74 seconds (Total)
+##  Elapsed Time: 0.38 seconds (Warm-up)
+##                1.381 seconds (Sampling)
+##                1.761 seconds (Total)
 ## 
 ## 
 ## SAMPLING FOR MODEL 'mmlm_code' NOW (CHAIN 2).
@@ -1213,9 +1213,9 @@ iterno=100, chains=2, savefile=TRUE, usefit=TRUE)</code></pre>
 ## Iteration: 90 / 100 [ 90%]  (Sampling)
 ## Iteration: 100 / 100 [100%]  (Sampling)
 ## 
-##  Elapsed Time: 0.54 seconds (Warm-up)
-##                0.62 seconds (Sampling)
-##                1.16 seconds (Total)</code></pre>
+##  Elapsed Time: 0.55 seconds (Warm-up)
+##                0.661 seconds (Sampling)
+##                1.211 seconds (Total)</code></pre>
 <pre><code>## Warning: There were 99 divergent transitions after warmup. Increasing adapt_delta above 0.9 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>## Warning: There were 1 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
@@ -1336,7 +1336,7 @@ iterno=100, chains=2, savefile=TRUE, usefit=TRUE)</code></pre>
 ## alpha[2]    1.88
 ## lp__        1.71
 ## 
-## Samples were drawn using NUTS(diag_e) at Mon May 28 17:29:55 2018.
+## Samples were drawn using NUTS(diag_e) at Wed May 30 15:48:00 2018.
 ## For each parameter, n_eff is a crude measure of effective sample size,
 ## and Rhat is the potential scale reduction factor on split chains (at 
 ## convergence, Rhat=1).</code></pre>
@@ -1467,32 +1467,29 @@ lines(trajectory,sample2reader$U.1.1,col=&quot;red&quot;)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] rmarkdown_1.9    knitr_1.20       BiocStyle_2.7.8  mlmm_0.99.9     
+## [1] rmarkdown_1.9    knitr_1.20       BiocStyle_2.7.8  mlmm_0.99.10    
 ## [5] Rcpp_0.12.17     BiocCheck_1.15.9
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] jsonlite_1.5         magrittr_1.5         gtable_0.2.0        
-##  [4] memoise_1.1.0        RCurl_1.95-4.10      xml2_1.2.0          
-##  [7] BiocGenerics_0.25.3  pillar_1.2.2         htmltools_0.3.6     
-## [10] stringr_1.3.0        curl_3.2             BiocInstaller_1.29.6
-## [13] getopt_1.20.2        lattice_0.20-35      StanHeaders_2.17.2  
-## [16] desc_1.1.1           RBGL_1.55.1          testthat_2.0.0      
-## [19] plyr_1.8.4           commonmark_1.4       gridExtra_2.3       
-## [22] bookdown_0.7         Matrix_1.2-12        R6_2.2.2            
-## [25] digest_0.6.15        xfun_0.1             stats4_3.5.0        
-## [28] colorspace_1.3-2     Biobase_2.39.2       rprojroot_1.3-2     
-## [31] devtools_1.13.5      rstan_2.17.3         stringi_1.1.7       
-## [34] yaml_2.1.18          lazyeval_0.2.1       evaluate_0.10.1     
-## [37] codetools_0.2-15     RcppEigen_0.3.3.4.0  tibble_1.4.2        
-## [40] httr_1.3.1           compiler_3.5.0       graph_1.57.1        
-## [43] withr_2.1.2          biocViews_1.47.6     backports_1.1.2     
-## [46] inline_0.3.14        munsell_0.4.3        roxygen2_6.0.1      
-## [49] XML_3.98-1.11        RUnit_0.4.31         MASS_7.3-48         
-## [52] parallel_3.5.0       rstantools_1.5.0     assertthat_0.2.0    
-## [55] ggplot2_2.2.1        BH_1.66.0-1          optparse_1.4.4      
-## [58] tools_3.5.0          bitops_1.0-6         scales_0.5.0        
-## [61] crayon_1.3.4         rlang_0.2.0          grid_3.5.0          
-## [64] stringdist_0.9.4.7</code></pre>
+##  [1] graph_1.57.1         withr_2.1.2          ggplot2_2.2.1       
+##  [4] devtools_1.13.5      bitops_1.0-6         RBGL_1.55.1         
+##  [7] rprojroot_1.3-2      lattice_0.20-35      inline_0.3.14       
+## [10] compiler_3.5.0       stringr_1.3.0        StanHeaders_2.17.2  
+## [13] parallel_3.5.0       Biobase_2.39.2       gridExtra_2.3       
+## [16] plyr_1.8.4           httr_1.3.1           tools_3.5.0         
+## [19] MASS_7.3-48          RCurl_1.95-4.10      memoise_1.1.0       
+## [22] R6_2.2.2             BiocInstaller_1.29.6 BiocGenerics_0.25.3 
+## [25] scales_0.5.0         stringdist_0.9.4.7   RUnit_0.4.31        
+## [28] curl_3.2             digest_0.6.15        evaluate_0.10.1     
+## [31] gtable_0.2.0         optparse_1.4.4       bookdown_0.7        
+## [34] Matrix_1.2-12        stringi_1.1.7        backports_1.1.2     
+## [37] rstantools_1.5.0     htmltools_0.3.6      munsell_0.4.3       
+## [40] grid_3.5.0           XML_3.98-1.11        colorspace_1.3-2    
+## [43] rlang_0.2.0          magrittr_1.5         yaml_2.1.18         
+## [46] lazyeval_0.2.1       stats4_3.5.0         getopt_1.20.2       
+## [49] xfun_0.1             pillar_1.2.2         biocViews_1.47.6    
+## [52] codetools_0.2-15     jsonlite_1.5         tibble_1.4.2        
+## [55] rstan_2.17.3</code></pre>
 </div>
 <div id="references" class="section level1">
 <h1><span class="header-section-number">6</span> References</h1>
