@@ -9,5 +9,5 @@ if (!require("devtools")) {
   install.packages("devtools")
 }
   
-devtools::install_github("buddalasunil999/mlmm")
+devtools::install_github("ireneslzeng/mlmm")
 ```
