@@ -1,0 +1,9 @@
+*.so
+.Rproj.user
+
+## Qt Creator
+*.pro
+*.pro.user
+inst/doc
+.Rhistory
+.RData
